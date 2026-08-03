@@ -2,13 +2,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const REQUIRED_VARS = [
-  "PORT",
-  "MONGO_URI",
-  "FRONTEND_URL",
-  "JWT_SECRET",
-  "GOOGLE_MAPS_API_KEY",
-];
+const REQUIRED_VARS = ["PORT", "MONGO_URI", "FRONTEND_URL", "JWT_SECRET", "GOOGLE_MAPS_API_KEY"];
 
 const missing = REQUIRED_VARS.filter((key) => !process.env[key]);
 

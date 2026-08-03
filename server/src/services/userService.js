@@ -1,3 +1,4 @@
+/** Reads and updates a user's profile fields. */
 const UserModel = require("../models/User");
 const ApiError = require("../utils/ApiError");
 

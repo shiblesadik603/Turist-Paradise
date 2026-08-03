@@ -19,7 +19,10 @@ import { PaymentFailed } from "./features/cart/PaymentFailed";
 function App() {
   return (
     <AuthProvider>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+      <LoadScript
+        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+        libraries={["places"]}
+      >
         <BrowserRouter>
           <Navbar />
           <Routes>
@@ -31,7 +34,10 @@ function App() {
             <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
             <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
             <Route path="/cart" element={<ProtectedRoute component={Cart} />} />
-            <Route path="/payment-success" element={<ProtectedRoute component={PaymentSuccess} />} />
+            <Route
+              path="/payment-success"
+              element={<ProtectedRoute component={PaymentSuccess} />}
+            />
             <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>

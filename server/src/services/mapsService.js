@@ -1,3 +1,4 @@
+/** Proxies Google Places/Distance Matrix requests so the Maps API key never reaches the browser. */
 const axios = require("axios");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
@@ -8,7 +9,7 @@ const getNearbyPlaces = async ({ location, radius, type }) => {
   try {
     const response = await axios.get(url);
     return response.data;
-  } catch (error) {
+  } catch {
     throw new ApiError(500, "Failed to fetch data from Places API");
   }
 };
@@ -25,7 +26,7 @@ const getDistance = async ({ originLat, originLng, destLat, destLng }) => {
   let response;
   try {
     response = await axios.get(url);
-  } catch (error) {
+  } catch {
     throw new ApiError(500, "Failed to fetch distance from Google API");
   }
 

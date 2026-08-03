@@ -1,3 +1,4 @@
+/** Multer config: saves uploads to server/uploads with a timestamp-prefixed filename. */
 const multer = require("multer");
 const path = require("path");
 

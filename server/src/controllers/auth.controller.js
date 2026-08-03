@@ -1,3 +1,4 @@
+/** POST /auth/signup, POST /auth/login — validate input, delegate to authService. */
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
 const authService = require("../services/authService");

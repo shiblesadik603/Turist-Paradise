@@ -1,7 +1,6 @@
 import axiosClient from "./axiosClient";
 
-export const addToCart = (userId, product) =>
-  axiosClient.post("/cart/add", { userId, product });
+export const addToCart = (userId, product) => axiosClient.post("/cart/add", { userId, product });
 
 export const getCart = (userId) => axiosClient.get(`/cart/${userId}`);
 

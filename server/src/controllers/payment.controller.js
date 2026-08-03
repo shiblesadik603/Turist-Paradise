@@ -1,3 +1,4 @@
+/** POST /payment/init (JWT-protected) plus the success/fail/cancel redirects SSLCommerz posts to directly. */
 const asyncHandler = require("../utils/asyncHandler");
 const env = require("../config/env");
 const paymentService = require("../services/paymentService");

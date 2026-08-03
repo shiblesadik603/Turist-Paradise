@@ -3,6 +3,7 @@ import * as authApi from "../api/auth.api";
 
 export const AuthContext = createContext(null);
 
+/** Holds the signed-in user's id/JWT (persisted to localStorage) and the signup/login/logout actions. */
 export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [token, setToken] = useState(localStorage.getItem("authToken"));

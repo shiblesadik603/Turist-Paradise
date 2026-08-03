@@ -1,3 +1,4 @@
+/** Initializes an SSLCommerz sandbox payment session and returns the gateway redirect URL. */
 const SSLCommerzPayment = require("sslcommerz-lts");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
@@ -5,7 +6,8 @@ const ApiError = require("../utils/ApiError");
 const IS_LIVE = false; // true for live, false for sandbox
 const backendUrl = `http://localhost:${env.port}`;
 
-const initPayment = async ({ totalAmount, userId, cartItems }) => {
+// userId/cartItems aren't sent to SSLCommerz; kept in the signature to match what the client sends
+const initPayment = async ({ totalAmount, userId: _userId, cartItems: _cartItems }) => {
   const transactionId = `T_${Date.now()}`;
 
   const data = {

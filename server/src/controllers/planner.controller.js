@@ -1,3 +1,4 @@
+/** CRUD endpoints for a user's saved AI trip plans, under /planner. */
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
 const plannerService = require("../services/plannerService");

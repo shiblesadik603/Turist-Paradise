@@ -1,3 +1,4 @@
+/** Reads the shop product catalog, grouped by category. */
 const PowerProduct = require("../models/PowerProduct");
 const SleepProduct = require("../models/SleepProduct");
 const BagProduct = require("../models/BagProduct");

@@ -1,3 +1,4 @@
+/** GET/PUT /users/:userId — profile read and update (incl. avatar upload via multer). */
 const asyncHandler = require("../utils/asyncHandler");
 const userService = require("../services/userService");
 

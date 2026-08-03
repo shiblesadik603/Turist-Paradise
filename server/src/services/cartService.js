@@ -1,3 +1,4 @@
+/** Add/update/remove items in a user's cart, keyed by userId. */
 const CartProduct = require("../models/CartProduct");
 const ApiError = require("../utils/ApiError");
 

@@ -1,3 +1,4 @@
+/** GET /shop/:category — one handler per product category, all built from the same factory. */
 const asyncHandler = require("../utils/asyncHandler");
 const shopService = require("../services/shopService");
 

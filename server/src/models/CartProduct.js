@@ -1,57 +1,62 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const cartProductSchema = new mongoose.Schema({
+const cartProductSchema = new mongoose.Schema(
+  {
     userId: {
-        type: String,
-        required: true,
-        ref: 'User'
+      type: String,
+      required: true,
+      ref: "User",
     },
-    products: [{
+    products: [
+      {
         productId: {
-            type: String, // Changed to String to handle product IDs like "pwr-1006"
-            required: true
+          type: String, // Changed to String to handle product IDs like "pwr-1006"
+          required: true,
         },
         name: {
-            type: String,
-            required: true
+          type: String,
+          required: true,
         },
         price: {
-            type: Number,
-            required: true
+          type: Number,
+          required: true,
         },
         image: {
-            type: String,
-            required: true
+          type: String,
+          required: true,
         },
         description: {
-            type: String,
-            default: ''
+          type: String,
+          default: "",
         },
         quantity: {
-            type: Number,
-            required: true,
-            default: 1,
-            min: 1
-        }
-    }],
+          type: Number,
+          required: true,
+          default: 1,
+          min: 1,
+        },
+      },
+    ],
     createdAt: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     updatedAt: {
-        type: Date,
-        default: Date.now
-    }
-}, {
-    timestamps: true
-});
+      type: Date,
+      default: Date.now,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Update the updatedAt field before saving
-cartProductSchema.pre('save', function(next) {
-    this.updatedAt = new Date();
-    next();
+cartProductSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
 });
 
-const CartProduct = mongoose.model('CartProduct', cartProductSchema, 'cart');
+const CartProduct = mongoose.model("CartProduct", cartProductSchema, "cart");
 
 module.exports = CartProduct;

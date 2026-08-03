@@ -1,3 +1,4 @@
+/** Signup/login: hashes/verifies passwords with bcrypt and issues JWTs. */
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/User");
@@ -7,11 +8,10 @@ const env = require("../config/env");
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRY = "7d";
 
-const signToken = (userId) =>
-  jwt.sign({ userId }, env.jwtSecret, { expiresIn: TOKEN_EXPIRY });
+const signToken = (userId) => jwt.sign({ userId }, env.jwtSecret, { expiresIn: TOKEN_EXPIRY });
 
 const stripPassword = (userDoc) => {
-  const { password, ...rest } = userDoc.toObject();
+  const { password: _password, ...rest } = userDoc.toObject();
   return rest;
 };
 

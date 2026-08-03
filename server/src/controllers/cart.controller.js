@@ -1,9 +1,12 @@
+/** CRUD endpoints for a user's cart, under /cart. */
 const asyncHandler = require("../utils/asyncHandler");
 const cartService = require("../services/cartService");
 
 const addToCart = asyncHandler(async (req, res) => {
   const cart = await cartService.addToCart(req.body);
-  res.status(200).json({ success: true, message: "Product added to cart successfully", data: cart });
+  res
+    .status(200)
+    .json({ success: true, message: "Product added to cart successfully", data: cart });
 });
 
 const getCart = asyncHandler(async (req, res) => {
@@ -18,7 +21,9 @@ const updateCartItem = asyncHandler(async (req, res) => {
 
 const removeFromCart = asyncHandler(async (req, res) => {
   const cart = await cartService.removeFromCart(req.body);
-  res.status(200).json({ success: true, message: "Product removed from cart successfully", data: cart });
+  res
+    .status(200)
+    .json({ success: true, message: "Product removed from cart successfully", data: cart });
 });
 
 const clearCart = asyncHandler(async (req, res) => {

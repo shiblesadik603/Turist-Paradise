@@ -1,3 +1,4 @@
+/** GET /maps/places, GET /maps/distance — Google Maps proxy endpoints. */
 const asyncHandler = require("../utils/asyncHandler");
 const mapsService = require("../services/mapsService");
 

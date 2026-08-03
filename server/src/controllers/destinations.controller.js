@@ -1,3 +1,4 @@
+/** GET /destinations — list the tourist spot catalog. */
 const asyncHandler = require("../utils/asyncHandler");
 const destinationService = require("../services/destinationService");
 

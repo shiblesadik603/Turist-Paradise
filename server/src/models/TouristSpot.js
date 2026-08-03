@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const touristSpotSchema = new mongoose.Schema({
   name: String,
@@ -8,6 +8,6 @@ const touristSpotSchema = new mongoose.Schema({
   longitude: Number,
 });
 
-const TouristSpotModel = mongoose.model('TouristSpot', touristSpotSchema, 'touristspot');//explicitly declared
+const TouristSpotModel = mongoose.model("TouristSpot", touristSpotSchema, "touristspot"); //explicitly declared
 
-module.exports =TouristSpotModel ;
+module.exports = TouristSpotModel;

@@ -1,5 +1,6 @@
 import axios from "axios";
 
+/** Shared axios instance: backend base URL from env, auto-attaches the JWT to every request. */
 const axiosClient = axios.create({
   baseURL: `${import.meta.env.VITE_BACKEND_URL}/api/v1`,
 });
