@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import * as usersApi from "../../api/users.api";
 import './Userprofile.css';
 
 export const Userprofile = () => {
@@ -15,15 +15,16 @@ export const Userprofile = () => {
 
     useEffect(() => {
         if (userId) {
-            axios.get(`http://localhost:3001/user/${userId}`)
+            usersApi.getUser(userId)
                 .then(response => {
-                    setUserData(response.data);
+                    const user = response.data.data;
+                    setUserData(user);
                     setEditableData({
-                        name: response.data.name,
-                        email: response.data.email,
-                        phonenum: response.data.phonenum || "",
-                        address: response.data.address || "",
-                        image: response.data.image || null
+                        name: user.name,
+                        email: user.email,
+                        phonenum: user.phonenum || "",
+                        address: user.address || "",
+                        image: user.image || null
                     });
                 })
                 .catch(err => {
@@ -59,14 +60,10 @@ export const Userprofile = () => {
             formData.append("image", editableData.image);
         }
 
-        axios.put(`http://localhost:3001/user/update/${userId}`, formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+        usersApi.updateUser(userId, formData)
             .then(response => {
                 alert("Profile updated successfully!");
-                setUserData(response.data);
+                setUserData(response.data.data);
             })
             .catch(err => {
                 console.log("Error updating profile:", err);
@@ -78,7 +75,7 @@ export const Userprofile = () => {
         if (editableData.image && editableData.image instanceof File) {
             return URL.createObjectURL(editableData.image);
         } else if (userData?.image) {
-            return `http://localhost:3001/uploads/${userData.image}`;
+            return `${import.meta.env.VITE_BACKEND_URL}/uploads/${userData.image}`;
         }
         return null;
     };

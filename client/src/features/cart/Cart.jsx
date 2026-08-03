@@ -21,6 +21,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import * as cartApi from '../../api/cart.api';
+import * as paymentApi from '../../api/payment.api';
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -44,20 +46,11 @@ export const Cart = () => {
         return;
       }
 
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
-
-      const response = await fetch(`${baseUrl}/api/cart/${userId}`);
-      
-      if (response.ok) {
-        const cartData = await response.json();
-        setCartItems(cartData.products);
-        setTotalPrice(parseFloat(cartData.totalPrice));
-        setTotalItems(cartData.totalItems);
-      } else {
-        throw new Error('Failed to fetch cart items');
-      }
+      const response = await cartApi.getCart(userId);
+      const cartData = response.data.data;
+      setCartItems(cartData.products);
+      setTotalPrice(parseFloat(cartData.totalPrice));
+      setTotalItems(cartData.totalItems);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,27 +63,8 @@ export const Cart = () => {
 
     try {
       const userId = localStorage.getItem("userId");
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
-
-      const response = await fetch(`${baseUrl}/api/cart/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          productId,
-          quantity: newQuantity
-        }),
-      });
-
-      if (response.ok) {
-        fetchCartItems(); // Refresh cart items
-      } else {
-        throw new Error('Failed to update quantity');
-      }
+      await cartApi.updateCartItem(userId, productId, newQuantity);
+      fetchCartItems(); // Refresh cart items
     } catch (err) {
       console.error('Error updating quantity:', err);
     }
@@ -99,26 +73,8 @@ export const Cart = () => {
   const removeFromCart = async (productId) => {
     try {
       const userId = localStorage.getItem("userId");
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
-
-      const response = await fetch(`${baseUrl}/api/cart/remove`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          productId
-        }),
-      });
-
-      if (response.ok) {
-        fetchCartItems(); // Refresh cart items
-      } else {
-        throw new Error('Failed to remove item');
-      }
+      await cartApi.removeFromCart(userId, productId);
+      fetchCartItems(); // Refresh cart items
     } catch (err) {
       console.error('Error removing item:', err);
     }
@@ -127,21 +83,10 @@ export const Cart = () => {
   const clearCart = async () => {
     try {
       const userId = localStorage.getItem("userId");
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
-
-      const response = await fetch(`${baseUrl}/api/cart/clear/${userId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        setCartItems([]);
-        setTotalPrice(0);
-        setTotalItems(0);
-      } else {
-        throw new Error('Failed to clear cart');
-      }
+      await cartApi.clearCart(userId);
+      setCartItems([]);
+      setTotalPrice(0);
+      setTotalItems(0);
     } catch (err) {
       console.error('Error clearing cart:', err);
     }
@@ -158,26 +103,16 @@ export const Cart = () => {
         // Show loading state
         setLoading(true);
 
-        const response = await fetch('http://localhost:3001/api/payment/init', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                totalAmount: (totalPrice + totalPrice * 0.08).toFixed(2),
-                userId,
-                cartItems
-            }),
-        });
+        const response = await paymentApi.initPayment(
+            (totalPrice + totalPrice * 0.08).toFixed(2),
+            userId,
+            cartItems
+        );
 
-        const data = await response.json();
+        const { url } = response.data.data;
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Payment initialization failed');
-        }
-
-        if (data.url) {
-            window.location.href = data.url;
+        if (url) {
+            window.location.href = url;
         } else {
             throw new Error('Invalid payment URL');
         }

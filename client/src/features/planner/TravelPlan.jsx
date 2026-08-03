@@ -1,11 +1,10 @@
 import { useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import { AI_PROMPT, SelectBudgetOptions } from "../Constants/Options";
-import { SelectTravelsList } from "../Constants/Options";
+import { AI_PROMPT, SelectBudgetOptions, SelectTravelsList } from "./options";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { chatSession } from "../Service/AIModal";
-import axios from "axios";
+import { chatSession } from "../../Service/AIModal";
+import * as plannerApi from "../../api/planner.api";
 import "./TravelPlan.css";
 
 export const TravelPlan = () => {
@@ -55,7 +54,7 @@ export const TravelPlan = () => {
 
             travelPlanData.itinerary = formattedItinerary;
 
-            const response = await axios.post("http://localhost:3001/saveTravelPlan", travelPlanData);
+            const response = await plannerApi.createTripPlan(travelPlanData);
             if (response.status === 201) {
                 toast.success("Travel plan saved successfully!");
             }

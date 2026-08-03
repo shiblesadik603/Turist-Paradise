@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import * as plannerApi from "../../api/planner.api";
 import "./SavedPlan.css";
 
 export const SavedPlan = () => {
@@ -11,8 +11,8 @@ export const SavedPlan = () => {
   useEffect(() => {
     const fetchSavedPlans = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/getTravelPlans/${userId}`);
-        setSavedPlans(response.data);
+        const response = await plannerApi.getTripPlans(userId);
+        setSavedPlans(response.data.data);
       } catch (error) {
         console.error("Error fetching saved plans:", error);
       }
@@ -33,7 +33,7 @@ export const SavedPlan = () => {
 
   const handleDelete = async (planId) => {
     try {
-      await axios.delete(`http://localhost:3001/deleteTravelPlan/${planId}`);
+      await plannerApi.deleteTripPlan(planId);
       setSavedPlans(savedPlans.filter(plan => plan._id !== planId));
     } catch (error) {
       console.error("Error deleting plan:", error);

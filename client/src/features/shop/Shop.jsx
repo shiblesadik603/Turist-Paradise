@@ -8,6 +8,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Badge from '@mui/material/Badge';
 import { useNavigate } from 'react-router-dom';
+import * as shopApi from '../../api/shop.api';
+import * as cartApi from '../../api/cart.api';
 
 export const Shop = () => {
   const navigate = useNavigate();
@@ -80,17 +82,10 @@ export const Shop = () => {
       const userId = localStorage.getItem("userId");
       if (!userId) return;
 
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
-      
-      const response = await fetch(`${baseUrl}/api/cart/${userId}`);
-      
-      if (response.ok) {
-        const cartData = await response.json();
-        setCartCount(cartData.totalItems);
-        setShowCart(cartData.totalItems > 0);
-      }
+      const response = await cartApi.getCart(userId);
+      const cartData = response.data.data;
+      setCartCount(cartData.totalItems);
+      setShowCart(cartData.totalItems > 0);
     } catch (error) {
       console.error('Error loading cart count:', error);
     }
@@ -110,18 +105,8 @@ export const Shop = () => {
   useEffect(() => {
     const fetchPowerProducts = async () => {
       try {
-        const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001' 
-          : '';
-        
-        const response = await fetch(`${baseUrl}/api/products/power`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch power products');
-        }
-        
-        const data = await response.json();
-        setPowerProducts(data);
+        const response = await shopApi.getProductsByCategory('power');
+        setPowerProducts(response.data.data);
       } catch (err) {
         setPowerError(err.message);
       } finally {
@@ -136,18 +121,8 @@ export const Shop = () => {
   useEffect(() => {
     const fetchSleepProducts = async () => {
       try {
-        const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001' 
-          : '';
-        
-        const response = await fetch(`${baseUrl}/api/products/sleep`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch sleep products');
-        }
-        
-        const data = await response.json();
-        setSleepProducts(data);
+        const response = await shopApi.getProductsByCategory('sleep');
+        setSleepProducts(response.data.data);
       } catch (err) {
         setSleepError(err.message);
       } finally {
@@ -162,18 +137,8 @@ export const Shop = () => {
   useEffect(() => {
     const fetchSecurityProducts = async () => {
       try {
-        const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001' 
-          : '';
-        
-        const response = await fetch(`${baseUrl}/api/products/security`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch security products');
-        }
-        
-        const data = await response.json();
-        setSecurityProducts(data);
+        const response = await shopApi.getProductsByCategory('security');
+        setSecurityProducts(response.data.data);
       } catch (err) {
         setSecurityError(err.message);
       } finally {
@@ -188,18 +153,8 @@ export const Shop = () => {
   useEffect(() => {
     const fetchRainProducts = async () => {
       try {
-        const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001' 
-          : '';
-        
-        const response = await fetch(`${baseUrl}/api/products/rain`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch rain products');
-        }
-        
-        const data = await response.json();
-        setRainProducts(data);
+        const response = await shopApi.getProductsByCategory('rain');
+        setRainProducts(response.data.data);
       } catch (err) {
         setRainError(err.message);
       } finally {
@@ -214,18 +169,8 @@ export const Shop = () => {
   useEffect(() => {
     const fetchBagProducts = async () => {
       try {
-        const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001' 
-          : '';
-        
-        const response = await fetch(`${baseUrl}/api/products/bags`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch bag products');
-        }
-        
-        const data = await response.json();
-        setBagProducts(data);
+        const response = await shopApi.getProductsByCategory('bags');
+        setBagProducts(response.data.data);
       } catch (err) {
         setBagError(err.message);
       } finally {
@@ -274,40 +219,21 @@ export const Shop = () => {
         return;
       }
 
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001' 
-        : '';
+      await cartApi.addToCart(userId, product);
 
-      const response = await fetch(`${baseUrl}/api/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          product
-        }),
+      // Update cart count
+      setCartCount(prevCount => prevCount + 1);
+      setShowCart(true);
+
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: `${product.name} added to cart!`,
+        severity: 'success'
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Update cart count
-        setCartCount(prevCount => prevCount + 1);
-        setShowCart(true);
-        
-        // Show success message
-        setSnackbar({
-          open: true,
-          message: `${product.name} added to cart!`,
-          severity: 'success'
-        });
-        
-        // Reload cart count to get accurate count
-        loadCartCount();
-      } else {
-        throw new Error('Failed to add item to cart');
-      }
+      // Reload cart count to get accurate count
+      loadCartCount();
     } catch (error) {
       console.error('Error adding to cart:', error);
       setSnackbar({

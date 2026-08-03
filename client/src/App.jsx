@@ -1,27 +1,24 @@
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoadScript } from "@react-google-maps/api";
 
-import { Login } from "./Components/Login";
-import { SignUp } from "./Components/Signup";
-import { Home } from "./Components/Home";
-import { Navbar } from "./Components/Navbar";
-import { Userprofile } from "./Components/Userprofile";
-import { TravelPlan } from "./Components/TravelPlan"; 
-import { SavedPlan } from "./Components/Savedplan"; 
-import { Cart } from "./Components/Cart";
-import { PaymentSuccess } from './Components/PaymentSuccess';
-import { PaymentFailed } from './Components/PaymentFailed';
+import { AuthProvider } from "./context/AuthContext";
+import { Navbar } from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-import {Shop} from "./Components/Shop";
-import ProtectedRoute from "./ProtectedRoute";
+import { Login } from "./features/auth/Login";
+import { SignUp } from "./features/auth/Signup";
+import { Home } from "./features/destinations/Home";
+import { Userprofile } from "./features/profile/Userprofile";
+import { TravelPlan } from "./features/planner/TravelPlan";
+import { SavedPlan } from "./features/planner/SavedPlan";
+import { Shop } from "./features/shop/Shop";
+import { Cart } from "./features/cart/Cart";
+import { PaymentSuccess } from "./features/cart/PaymentSuccess";
+import { PaymentFailed } from "./features/cart/PaymentFailed";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [cartItems, setCartItems] = useState([]);
-
   return (
-    <>
+    <AuthProvider>
       <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <BrowserRouter>
           <Navbar />
@@ -33,29 +30,14 @@ function App() {
             <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
             <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
             <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
-            <Route 
-              path="/cart" 
-              element={
-                <ProtectedRoute 
-                  component={() => (
-                    <Cart 
-                      items={cartItems} 
-                      onRemoveItem={(id) => {
-                        setCartItems(items => items.filter(item => item.id !== id));
-                      }}
-                      onClose={() => navigate(-1)}
-                    />
-                  )} 
-                />
-              } 
-            />
+            <Route path="/cart" element={<ProtectedRoute component={Cart} />} />
             <Route path="/payment-success" element={<ProtectedRoute component={PaymentSuccess} />} />
             <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </BrowserRouter>
       </LoadScript>
-    </>
+    </AuthProvider>
   );
 }
 

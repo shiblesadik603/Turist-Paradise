@@ -13,16 +13,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useAuth } from "../hooks/useAuth";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const isLoggedIn = localStorage.getItem("authToken") !== null;
+  const { isAuthenticated, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-     setIsSidebarOpen(false);
+    logout();
+    setIsSidebarOpen(false);
     navigate("/login");
   };
 
@@ -34,7 +34,7 @@ export const Navbar = () => {
     <>
       <AppBar sx={{ bgcolor: '#333' }}>
         <Toolbar>
-          {isLoggedIn && (
+          {isAuthenticated && (
             <MenuIcon
               sx={{ cursor: 'pointer', marginRight: '10px', color: '#fff' }}
               onClick={toggleSidebar}
@@ -44,7 +44,7 @@ export const Navbar = () => {
             Tourists
           </Typography>
 
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <>
               <Button
                 variant="outlined"

@@ -1,34 +1,25 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Container, TextField, Button, Typography, Box, Paper, Alert } from "@mui/material";
+import { useAuth } from "../../hooks/useAuth";
 
 export const Login = () => {
     // Define state variables for form fields
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    
+
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     // Handle form submission
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(""); // Clear any previous errors
-        
+
         try {
-            const result = await axios.post("http://localhost:3001/login", { email, password });
-            
-            if (result.data.message === "Success") {
-                const user = result.data.user;
-                // Store the user's _id in localStorage or state
-                localStorage.setItem("authToken", "user-token-example");
-                localStorage.setItem("userId", user._id);
-                console.log(user._id);
-                navigate("/home");
-            } else {
-                setError("Invalid credentials. Please try again.");
-            }
+            await login(email, password);
+            navigate("/home");
         } catch (error) {
             if (error.response) {
                 // The server responded with a status code outside of 2xx

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { GoogleMap, Marker, InfoWindow, DirectionsRenderer } from "@react-google-maps/api";
-import Weather from "./Weather"; // Import the Weather component
+import Weather from "../weather/Weather";
+import * as destinationsApi from "../../api/destinations.api";
+import * as mapsApi from "../../api/maps.api";
 
 export const Home = () => {
   const [touristSpots, setSpots] = useState([]);
@@ -12,15 +13,22 @@ export const Home = () => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [directions, setDirections] = useState(null);
   const [travelDetails, setTravelDetails] = useState(null);
+  const [spotsLoading, setSpotsLoading] = useState(true);
+  const [spotsError, setSpotsError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/getspots")
+    destinationsApi
+      .getSpots()
       .then((response) => {
-        setSpots(response.data);
-        setFilteredSpots(response.data); // Initialize with all spots
+        const spots = response.data.data;
+        setSpots(spots);
+        setFilteredSpots(spots); // Initialize with all spots
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setSpotsError("Failed to load tourist spots. Please try again later.");
+      })
+      .finally(() => setSpotsLoading(false));
   }, []);
 
   // Handle search query changes
@@ -35,16 +43,10 @@ export const Home = () => {
 
   const fetchNearbyPlaces = (lat, lng, type) => {
     const radius = 5000; // 20 km
-    axios
-      .get("http://localhost:3001/api/places", {
-        params: {
-          location: `${lat},${lng}`,
-          radius,
-          type, // hotel, restaurant, or resort
-        },
-      })
+    mapsApi
+      .getNearbyPlaces(`${lat},${lng}`, radius, type)
       .then((response) => {
-        const places = response.data.results.map((place) => ({
+        const places = response.data.data.results.map((place) => ({
           id: place.place_id,
           name: place.name,
           lat: place.geometry.location.lat,
@@ -321,7 +323,11 @@ const handleGetDirections = () => {
           justifyContent: "center",
         }}
       >
-        {filteredSpots.length === 0 ? (
+        {spotsLoading ? (
+          <p>Loading tourist spots...</p>
+        ) : spotsError ? (
+          <p style={{ color: "#e53e3e" }}>{spotsError}</p>
+        ) : filteredSpots.length === 0 ? (
           <p>No tourist spots found.</p>
         ) : (
           filteredSpots.map((spot) => (
