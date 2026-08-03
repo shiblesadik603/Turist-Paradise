@@ -1,0 +1,62 @@
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LoadScript } from "@react-google-maps/api";
+
+import { Login } from "./Components/Login";
+import { SignUp } from "./Components/Signup";
+import { Home } from "./Components/Home";
+import { Navbar } from "./Components/Navbar";
+import { Userprofile } from "./Components/Userprofile";
+import { TravelPlan } from "./Components/TravelPlan"; 
+import { SavedPlan } from "./Components/Savedplan"; 
+import { Cart } from "./Components/Cart";
+import { PaymentSuccess } from './Components/PaymentSuccess';
+import { PaymentFailed } from './Components/PaymentFailed';
+
+import {Shop} from "./Components/Shop";
+import ProtectedRoute from "./ProtectedRoute";
+
+function App() {
+  const [count, setCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+
+  return (
+    <>
+      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/home" element={<ProtectedRoute component={Home} />} />
+            <Route path="/userprofile" element={<ProtectedRoute component={Userprofile} />} />
+            <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
+            <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
+            <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
+            <Route 
+              path="/cart" 
+              element={
+                <ProtectedRoute 
+                  component={() => (
+                    <Cart 
+                      items={cartItems} 
+                      onRemoveItem={(id) => {
+                        setCartItems(items => items.filter(item => item.id !== id));
+                      }}
+                      onClose={() => navigate(-1)}
+                    />
+                  )} 
+                />
+              } 
+            />
+            <Route path="/payment-success" element={<ProtectedRoute component={PaymentSuccess} />} />
+            <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </BrowserRouter>
+      </LoadScript>
+    </>
+  );
+}
+
+export default App;
