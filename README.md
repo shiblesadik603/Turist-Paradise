@@ -117,19 +117,25 @@ Every response follows `{ success: boolean, message: string, data: object|array|
    ```
    See `server/.env.example` and `client/.env.example` for the full list of required variables (Mongo URI, JWT secret, API keys, backend URL). The server validates all required variables at startup and fails fast with a clear message if any are missing.
 
-3. **Run the backend**
+3. **Seed the destination catalog** (optional, but the Home page is empty without it):
+   ```
+   npm run seed --prefix server
+   ```
+   Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates. Safe to re-run — it upserts by name instead of creating duplicates. See `server/src/seed/touristSpots.data.js` to edit or extend the list.
+
+4. **Run the backend**
    ```
    npm run dev --prefix server
    ```
    Starts on `http://localhost:3001` by default (configurable via `PORT`).
 
-4. **Run the frontend**
+5. **Run the frontend**
    ```
    npm run dev --prefix client
    ```
    Starts on `http://localhost:5173` and talks to the backend via `VITE_BACKEND_URL`.
 
-5. **Lint / format** (either package):
+6. **Lint / format** (either package):
    ```
    npm run lint --prefix server
    npm run format --prefix server

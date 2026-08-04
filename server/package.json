@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "seed": "node src/seed/touristSpots.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
