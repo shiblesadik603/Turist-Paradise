@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import * as plannerApi from "../../api/planner.api";
+import { getUserId } from "../../utils/authStorage";
 import "./SavedPlan.css";
 
 export const SavedPlan = () => {
-  const userId = localStorage.getItem("userId");
+  const userId = getUserId();
   const [savedPlans, setSavedPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [open, setOpen] = useState(false);

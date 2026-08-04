@@ -1,16 +1,16 @@
 import { createContext, useState } from "react";
 import * as authApi from "../api/auth.api";
+import { getToken, getUserId, setSession, clearSession } from "../utils/authStorage";
 
 export const AuthContext = createContext(null);
 
-/** Holds the signed-in user's id/JWT (persisted to localStorage) and the signup/login/logout actions. */
+/** Holds the signed-in user's id/JWT (localStorage if "remembered", else sessionStorage) and the signup/login/logout actions. */
 export const AuthProvider = ({ children }) => {
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
-  const [token, setToken] = useState(localStorage.getItem("authToken"));
+  const [userId, setUserId] = useState(getUserId());
+  const [token, setToken] = useState(getToken());
 
-  const persistSession = (user, jwt) => {
-    localStorage.setItem("authToken", jwt);
-    localStorage.setItem("userId", user._id);
+  const persistSession = (user, jwt, remember) => {
+    setSession(jwt, user._id, remember);
     setToken(jwt);
     setUserId(user._id);
   };
@@ -18,18 +18,17 @@ export const AuthProvider = ({ children }) => {
   const signup = async (name, email, password) => {
     const response = await authApi.signup(name, email, password);
     const { user, token: jwt } = response.data.data;
-    persistSession(user, jwt);
+    persistSession(user, jwt, false);
   };
 
-  const login = async (email, password) => {
-    const response = await authApi.login(email, password);
+  const login = async (email, password, rememberMe) => {
+    const response = await authApi.login(email, password, rememberMe);
     const { user, token: jwt } = response.data.data;
-    persistSession(user, jwt);
+    persistSession(user, jwt, rememberMe);
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
+    clearSession();
     setToken(null);
     setUserId(null);
   };

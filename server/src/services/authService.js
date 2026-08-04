@@ -6,9 +6,10 @@ const ApiError = require("../utils/ApiError");
 const env = require("../config/env");
 
 const SALT_ROUNDS = 10;
-const TOKEN_EXPIRY = "7d";
+const DEFAULT_TOKEN_EXPIRY = "1d";
+const REMEMBER_ME_TOKEN_EXPIRY = "30d";
 
-const signToken = (userId) => jwt.sign({ userId }, env.jwtSecret, { expiresIn: TOKEN_EXPIRY });
+const signToken = (userId, expiresIn) => jwt.sign({ userId }, env.jwtSecret, { expiresIn });
 
 const stripPassword = (userDoc) => {
   const { password: _password, ...rest } = userDoc.toObject();
@@ -26,11 +27,11 @@ const signup = async ({ name, email, password }) => {
 
   return {
     user: stripPassword(user),
-    token: signToken(user._id),
+    token: signToken(user._id, DEFAULT_TOKEN_EXPIRY),
   };
 };
 
-const login = async ({ email, password }) => {
+const login = async ({ email, password, rememberMe }) => {
   const user = await UserModel.findOne({ email });
   if (!user) {
     throw new ApiError(404, "No account found with this email");
@@ -41,9 +42,11 @@ const login = async ({ email, password }) => {
     throw new ApiError(401, "Incorrect password");
   }
 
+  const expiresIn = rememberMe ? REMEMBER_ME_TOKEN_EXPIRY : DEFAULT_TOKEN_EXPIRY;
+
   return {
     user: stripPassword(user),
-    token: signToken(user._id),
+    token: signToken(user._id, expiresIn),
   };
 };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import * as usersApi from "../../api/users.api";
+import { getUserId } from "../../utils/authStorage";
 import "./Userprofile.css";
 
 export const Userprofile = () => {
@@ -11,7 +12,7 @@ export const Userprofile = () => {
     address: "",
     image: null,
   });
-  const userId = localStorage.getItem("userId");
+  const userId = getUserId();
 
   useEffect(() => {
     if (userId) {

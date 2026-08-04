@@ -5,11 +5,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { chatSession } from "../../api/gemini.api";
 import * as plannerApi from "../../api/planner.api";
+import { getUserId } from "../../utils/authStorage";
 import "./TravelPlan.css";
 
 export const TravelPlan = () => {
   const [formData, setFormData] = useState({});
-  const userId = localStorage.getItem("userId");
+  const userId = getUserId();
 
   const handleInputChange = (name, value) => {
     setFormData({

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "../utils/authStorage";
 
 /** Shared axios instance: backend base URL from env, auto-attaches the JWT to every request. */
 const axiosClient = axios.create({
@@ -6,7 +7,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -3,6 +3,7 @@ import { Container, Fab, Snackbar, Alert } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useNavigate } from "react-router-dom";
 import * as cartApi from "../../api/cart.api";
+import { getUserId } from "../../utils/authStorage";
 import { useCategoryProducts } from "./useCategoryProducts";
 import { ProductSection } from "./ProductSection";
 import { ShopHero } from "./ShopHero";
@@ -65,7 +66,7 @@ export const Shop = () => {
   // Load cart count from backend
   const loadCartCount = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) return;
 
       const response = await cartApi.getCart(userId);
@@ -114,7 +115,7 @@ export const Shop = () => {
   // Add to cart function
   const handleAddToCart = async (product) => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
 
       if (!userId) {
         setSnackbar({

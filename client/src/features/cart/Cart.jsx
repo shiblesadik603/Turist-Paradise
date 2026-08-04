@@ -22,6 +22,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import * as cartApi from "../../api/cart.api";
 import * as paymentApi from "../../api/payment.api";
+import { getUserId } from "../../utils/authStorage";
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export const Cart = () => {
 
   const fetchCartItems = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
 
       if (!userId) {
         setError("Please login to view your cart");
@@ -61,7 +62,7 @@ export const Cart = () => {
     if (newQuantity < 1) return;
 
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       await cartApi.updateCartItem(userId, productId, newQuantity);
       fetchCartItems(); // Refresh cart items
     } catch (err) {
@@ -71,7 +72,7 @@ export const Cart = () => {
 
   const removeFromCart = async (productId) => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       await cartApi.removeFromCart(userId, productId);
       fetchCartItems(); // Refresh cart items
     } catch (err) {
@@ -81,7 +82,7 @@ export const Cart = () => {
 
   const clearCart = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       await cartApi.clearCart(userId);
       setCartItems([]);
       setTotalPrice(0);
@@ -93,7 +94,7 @@ export const Cart = () => {
 
   const handleCheckout = async () => {
     try {
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         setError("Please login to checkout");
         return;
