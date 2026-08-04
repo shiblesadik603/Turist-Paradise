@@ -1,161 +1,108 @@
-.auth-layout {
-  display: flex;
+.auth-page {
+  position: relative;
   min-height: 100vh;
   width: 100%;
-}
-
-.auth-hero {
-  position: relative;
-  flex: 1.15;
-  min-height: 100vh;
-  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #fff;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 96px 24px 48px;
+  box-sizing: border-box;
 }
 
-.auth-hero__image {
+.auth-page__bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  z-index: 0;
 }
 
-.auth-hero__scrim {
+.auth-page__scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.6) 0%,
-    rgba(15, 23, 42, 0.15) 35%,
-    rgba(15, 23, 42, 0.8) 100%
-  );
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(22, 32, 43, 0.35) 0%, rgba(22, 32, 43, 0.72) 70%),
+    linear-gradient(
+      180deg,
+      rgba(22, 32, 43, 0.55) 0%,
+      rgba(22, 32, 43, 0.4) 40%,
+      rgba(22, 32, 43, 0.75) 100%
+    );
 }
 
-.auth-hero__brand {
+.auth-page__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  width: 100%;
+  max-width: 440px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 32px 40px;
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
 }
 
-.auth-hero__brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
-  font-size: 1.1rem;
+.auth-page__intro {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 28px;
 }
 
-.auth-hero__copy {
-  position: relative;
-  z-index: 1;
-  padding: 0 40px 64px;
-  max-width: 520px;
-}
-
-.auth-hero__eyebrow {
+.auth-page__eyebrow {
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 14px;
+  font-weight: 700;
+  color: #e2b13c;
+  margin-bottom: 12px;
 }
 
-.auth-hero__tagline {
-  font-size: 2.75rem;
-  line-height: 1.15;
+.auth-page__tagline {
+  font-size: 2.1rem;
+  line-height: 1.2;
   font-weight: 800;
-  margin: 0 0 16px;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+  margin: 0 0 10px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
-.auth-hero__subtitle {
-  font-size: 1.05rem;
-  line-height: 1.6;
+.auth-page__subtitle {
+  font-size: 0.95rem;
+  line-height: 1.55;
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
-.auth-hero__accent {
-  position: absolute;
-  right: 48px;
-  bottom: 64px;
-  width: 168px;
-  height: 168px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 4px solid rgba(255, 255, 255, 0.92);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-  transform: rotate(4deg);
-  z-index: 1;
-  transition: transform 0.3s ease;
-}
-
-.auth-hero__accent:hover {
-  transform: rotate(0deg) scale(1.03);
-}
-
-.auth-hero__accent img {
+.auth-card {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
 }
 
-.auth-panel {
-  flex: 1;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  padding: 48px 24px;
-}
-
-.auth-panel__inner {
-  width: 100%;
-  max-width: 400px;
-}
-
-@media (max-width: 900px) {
-  .auth-layout {
-    flex-direction: column;
+@media (max-width: 600px) {
+  .auth-page {
+    padding: 84px 16px 32px;
   }
 
-  .auth-hero {
-    min-height: 320px;
-    flex: none;
+  .auth-page__tagline {
+    font-size: 1.6rem;
   }
 
-  .auth-hero__copy {
-    padding-bottom: 32px;
+  .auth-page__subtitle {
+    font-size: 0.85rem;
   }
 
-  .auth-hero__tagline {
-    font-size: 2rem;
-  }
-
-  .auth-hero__accent {
-    display: none;
-  }
-
-  .auth-panel {
-    min-height: auto;
-    padding: 32px 20px 56px;
+  .auth-card {
+    padding: 28px 22px;
+    border-radius: 16px;
   }
 }

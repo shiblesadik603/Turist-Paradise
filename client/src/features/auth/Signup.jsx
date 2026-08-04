@@ -53,8 +53,6 @@ export const SignUp = () => {
     <AuthLayout
       heroImage="/photos/friends-hiking.jpeg"
       heroAlt="A group of friends laughing together on a mountain trail"
-      accentImage="/photos/travel-journal.jpeg"
-      accentAlt="A collage travel journal with landmarks and mementos"
       eyebrow="Join the adventure"
       tagline="Every great trip starts with a single step."
       subtitle="Create your account to plan destinations, get AI-generated itineraries, and shop for travel gear."

@@ -50,8 +50,6 @@ export const Login = () => {
     <AuthLayout
       heroImage="/photos/hiker-sunset.jpeg"
       heroAlt="A hiker looking out over misty mountains at sunset"
-      accentImage="/photos/vintage-postcards.jpeg"
-      accentAlt="A collage of vintage travel postcards"
       eyebrow="Welcome back"
       tagline="Your next journey is one click away."
       subtitle="Sign in to pick up where you left off — saved destinations, itineraries, and your travel gear cart."

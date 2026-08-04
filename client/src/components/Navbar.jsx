@@ -41,7 +41,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <AppBar sx={{ bgcolor: "#333" }}>
+      <AppBar sx={{ background: "linear-gradient(90deg, #16202b 0%, #2c3e50 100%)" }}>
         <Toolbar>
           {isAuthenticated && (
             <MenuIcon
