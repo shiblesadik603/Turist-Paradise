@@ -2,13 +2,25 @@ import { useEffect, useState } from "react";
 import * as destinationsApi from "../../api/destinations.api";
 import * as mapsApi from "../../api/maps.api";
 import { useDirections } from "./useDirections";
+import { HeroSection } from "./HeroSection";
+import { TourTypes } from "./TourTypes";
+import { Collections } from "./Collections";
+import { FeaturedSpots } from "./FeaturedSpots";
+import { QualityBand } from "./QualityBand";
+import { AboutSection } from "./AboutSection";
 import { SpotGrid } from "./SpotGrid";
 import { SpotDetailsPanel } from "./SpotDetailsPanel";
+import "./Home.css";
+
+const scrollToDestinations = () => {
+  document.getElementById("destinations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
 export const Home = () => {
   const [touristSpots, setSpots] = useState([]);
-  const [filteredSpots, setFilteredSpots] = useState([]); // To store filtered spots
-  const [searchQuery, setSearchQuery] = useState(""); // Search input
+  const [filteredSpots, setFilteredSpots] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilterLabel, setActiveFilterLabel] = useState(null);
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -23,7 +35,7 @@ export const Home = () => {
       .then((response) => {
         const spots = response.data.data;
         setSpots(spots);
-        setFilteredSpots(spots); // Initialize with all spots
+        setFilteredSpots(spots);
       })
       .catch((err) => {
         console.error(err);
@@ -32,16 +44,37 @@ export const Home = () => {
       .finally(() => setSpotsLoading(false));
   }, []);
 
-  // Handle search query changes
   const handleSearchChange = (event) => {
-    const query = event.target.value.toLowerCase();
+    const query = event.target.value;
     setSearchQuery(query);
-    const filtered = touristSpots.filter((spot) => spot.name.toLowerCase().includes(query));
-    setFilteredSpots(filtered);
+    setActiveFilterLabel(null);
+    const lowerQuery = query.toLowerCase();
+    setFilteredSpots(touristSpots.filter((spot) => spot.name.toLowerCase().includes(lowerQuery)));
+  };
+
+  const handleSearchSubmit = () => {
+    scrollToDestinations();
+  };
+
+  const applyGroupFilter = (label, names) => {
+    setSearchQuery("");
+    setActiveFilterLabel(label);
+    setFilteredSpots(touristSpots.filter((spot) => names.includes(spot.name)));
+    scrollToDestinations();
+  };
+
+  const handleSelectTourType = (type) => applyGroupFilter(type.label, type.spots);
+  const handleSelectCollection = (collection) =>
+    applyGroupFilter(collection.label, collection.spots);
+
+  const clearFilter = () => {
+    setSearchQuery("");
+    setActiveFilterLabel(null);
+    setFilteredSpots(touristSpots);
   };
 
   const fetchNearbyPlaces = (lat, lng, type) => {
-    const radius = 5000; // 20 km
+    const radius = 5000;
     mapsApi
       .getNearbyPlaces(`${lat},${lng}`, radius, type)
       .then((response) => {
@@ -59,80 +92,69 @@ export const Home = () => {
 
   const handleSelectSpot = (spot) => {
     setSelectedSpot(spot);
-    // Clear previous travel details and directions
     resetDirections();
-    // Fetch nearby places for the new spot
     fetchNearbyPlaces(spot.latitude, spot.longitude, "hotel");
-
-    // Smooth scroll to map section
     setTimeout(() => {
-      const mapSection = document.getElementById("map-section");
-      if (mapSection) {
-        mapSection.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
+      document
+        .getElementById("map-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
-  // Clear directions and travel details when selected spot changes
   useEffect(() => {
     resetDirections();
-  }, [selectedSpot, resetDirections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSpot]);
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        overflowY: "auto",
-        maxHeight: "90vh",
-        marginTop: "30px",
-      }}
-    >
-      <div style={{ textAlign: "center" }}>
-        <h2>Tourist Spots</h2>
-      </div>
-
-      {/* Search Bar */}
-      <div style={{ marginBottom: "20px", textAlign: "center" }}>
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          style={{
-            width: "50%",
-            padding: "10px",
-            fontSize: "16px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
-        />
-      </div>
-
-      <SpotGrid
-        spots={filteredSpots}
-        loading={spotsLoading}
-        error={spotsError}
-        onSelectSpot={handleSelectSpot}
+    <div className="home">
+      <HeroSection
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        onSearchSubmit={handleSearchSubmit}
       />
 
-      {selectedSpot && (
-        <SpotDetailsPanel
-          selectedSpot={selectedSpot}
-          nearbyPlaces={nearbyPlaces}
-          selectedPlace={selectedPlace}
-          onSelectPlace={setSelectedPlace}
-          directions={directions}
-          travelDetails={travelDetails}
-          onFetchNearby={(type) =>
-            fetchNearbyPlaces(selectedSpot.latitude, selectedSpot.longitude, type)
-          }
-          onGetDirections={() => getDirections(selectedSpot)}
+      <TourTypes onSelectType={handleSelectTourType} />
+      <Collections onSelectCollection={handleSelectCollection} />
+      <FeaturedSpots spots={touristSpots} onExplore={handleSelectSpot} />
+      <QualityBand />
+      <AboutSection />
+
+      <section className="section destinations" id="destinations">
+        <h2 className="section__title">Destinations</h2>
+        <p className="section__subtitle">Browse every spot, or search by name above.</p>
+
+        {activeFilterLabel && (
+          <div className="destinations__filter-chip">
+            Showing: <strong>{activeFilterLabel}</strong>
+            <button type="button" onClick={clearFilter}>
+              Clear ×
+            </button>
+          </div>
+        )}
+
+        <SpotGrid
+          spots={filteredSpots}
+          loading={spotsLoading}
+          error={spotsError}
+          onSelectSpot={handleSelectSpot}
         />
-      )}
+
+        {selectedSpot && (
+          <SpotDetailsPanel
+            selectedSpot={selectedSpot}
+            nearbyPlaces={nearbyPlaces}
+            selectedPlace={selectedPlace}
+            onSelectPlace={setSelectedPlace}
+            directions={directions}
+            travelDetails={travelDetails}
+            onFetchNearby={(type) =>
+              fetchNearbyPlaces(selectedSpot.latitude, selectedSpot.longitude, type)
+            }
+            onGetDirections={() => getDirections(selectedSpot)}
+          />
+        )}
+      </section>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { LoadScript } from "@react-google-maps/api";
 
 import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
+import { Footer } from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { Login } from "./features/auth/Login";
@@ -41,6 +42,7 @@ function App() {
             <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
+          <Footer />
         </BrowserRouter>
       </LoadScript>
     </AuthProvider>
