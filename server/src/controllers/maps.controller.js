@@ -1,4 +1,4 @@
-/** GET /maps/places, GET /maps/distance — Google Maps proxy endpoints. */
+/** GET /maps/places — OpenStreetMap Overpass nearby-place proxy. */
 const asyncHandler = require("../utils/asyncHandler");
 const mapsService = require("../services/mapsService");
 
@@ -8,10 +8,4 @@ const getPlaces = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Places retrieved", data });
 });
 
-const getDistance = asyncHandler(async (req, res) => {
-  const { originLat, originLng, destLat, destLng } = req.query;
-  const data = await mapsService.getDistance({ originLat, originLng, destLat, destLng });
-  res.status(200).json({ success: true, message: "Distance retrieved", data });
-});
-
-module.exports = { getPlaces, getDistance };
+module.exports = { getPlaces };

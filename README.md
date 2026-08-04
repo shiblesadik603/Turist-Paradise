@@ -7,7 +7,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 ## ✨ Features
 
 - **Authentication** — signup/login with bcrypt-hashed passwords and JWT session tokens.
-- **Destination explorer** — browse tourist spots pulled from MongoDB, each pinned on Google Maps.
+- **Destination explorer** — browse tourist spots pulled from MongoDB, each pinned on an OpenStreetMap/Leaflet map (free, no API key required).
 - **Destination detail pages** — a dedicated page per destination (`/destinations/:slug`) with an overview, highlights, nearby sub-attractions, ride/transport options, and local guide contacts (sample data, marked as placeholders).
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
 - **Weather forecast** — 5-hour and multi-day outlook plus travel-safety warnings for the selected destination, via OpenWeatherMap.
@@ -25,7 +25,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 | Backend | Node.js, Express |
 | Database | MongoDB (Mongoose) |
 | Auth | JWT + bcrypt |
-| Maps | Google Maps JavaScript API, Places API, Distance Matrix API |
+| Maps | Leaflet + OpenStreetMap tiles (display), OSRM (driving directions), Overpass API (nearby places), Nominatim (destination search) — all free, no API key |
 | Weather | OpenWeatherMap API |
 | AI | Google Gemini API |
 | Payments | SSLCommerz (sandbox) |
@@ -76,8 +76,7 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 | PUT | `/users/:userId` | JWT | `multipart/form-data`: `name, phonenum, address, image?` | updated user |
 | GET | `/destinations` | JWT | – | tourist spot array |
 | GET | `/destinations/:slug` | JWT | – | full spot detail (highlights, attractions, ride options, guide info) |
-| GET | `/maps/places` | JWT | query: `location, radius, type` | Google Places result |
-| GET | `/maps/distance` | JWT | query: `originLat, originLng, destLat, destLng` | `{ distance, duration }` |
+| GET | `/maps/places` | JWT | query: `location, radius, type` | Overpass (OpenStreetMap) nearby-place result |
 | POST | `/planner` | JWT | trip plan object (`location, userId, duration, travelers, budget, hotels[], itinerary[]`) | saved plan |
 | GET | `/planner/:userId` | JWT | – | plan array |
 | DELETE | `/planner/:id` | JWT | – | – |
@@ -100,9 +99,9 @@ Every response follows `{ success: boolean, message: string, data: object|array|
 
 - Node.js (LTS) and npm
 - A MongoDB connection (e.g. a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster)
-- API keys: [Google Maps](https://console.cloud.google.com/) (Maps JavaScript, Places, Directions, and Distance Matrix APIs enabled — **and billing enabled on the project**, see note below), [OpenWeatherMap](https://openweathermap.org/api), [Google Gemini](https://ai.google.dev/)
+- API keys: [OpenWeatherMap](https://openweathermap.org/api), [Google Gemini](https://ai.google.dev/) — no Maps API key needed; the map, nearby-places search, directions, and destination autocomplete all run on free OpenStreetMap-based services (Leaflet, Overpass, OSRM, Nominatim) with no signup or billing required.
 
-> **Google Maps billing:** the Maps Platform requires a billing account on the Google Cloud project even to use the free tier — without it every map request fails with `BillingNotEnabledMapError` / `REQUEST_DENIED`. Google currently applies a **$200/month recurring credit** to Maps Platform usage automatically, which comfortably covers a dev/demo project at $0 actual cost, and new Google Cloud accounts typically also get a one-time free trial credit on top of that. To activate: open [console.cloud.google.com](https://console.cloud.google.com/), select (or create) the project your API key belongs to, go to **Billing → Link a billing account**, add a payment method, then enable **Maps JavaScript API**, **Places API**, **Directions API**, and **Distance Matrix API** under **APIs & Services**. No code changes are needed once billing is active — the existing key in `.env` starts working immediately.
+> **A note on the free map stack:** OSRM's and Overpass's public demo servers are rate-limited and meant for light/demo usage, not production traffic. Directions and nearby-place search may occasionally return a temporary error under heavy use — this is expected for the free tier, not a bug. For a production deployment, consider self-hosting OSRM/Overpass or using a paid provider.
 
 ### Setup
 

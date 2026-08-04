@@ -1,5 +1,5 @@
 import { useState } from "react";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { PlaceAutocomplete } from "./PlaceAutocomplete";
 import { AI_PROMPT, SelectBudgetOptions, SelectTravelsList } from "./options";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -80,13 +80,10 @@ export const TravelPlan = () => {
             </svg>
             What is your Destination?
           </div>
-          <div className="google-places-container">
-            <GooglePlacesAutocomplete
-              autocompletionRequest={{ componentRestrictions: { country: "bd" } }}
-              selectProps={{
-                onChange: (v) => handleInputChange("location", v),
-                placeholder: "Search for a destination...",
-              }}
+          <div className="place-autocomplete-wrap">
+            <PlaceAutocomplete
+              placeholder="Search for a destination..."
+              onChange={(v) => handleInputChange("location", v)}
             />
           </div>
         </div>

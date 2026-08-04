@@ -1,42 +1,54 @@
-/** Proxies Google Places/Distance Matrix requests so the Maps API key never reaches the browser. */
+/** Proxies OpenStreetMap Overpass nearby-place searches (free, no API key required). */
 const axios = require("axios");
-const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
 
-const getNearbyPlaces = async ({ location, radius, type }) => {
-  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=${radius}&type=${type}&key=${env.googleMapsApiKey}`;
+const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
-  try {
-    const response = await axios.get(url);
-    return response.data;
-  } catch {
-    throw new ApiError(500, "Failed to fetch data from Places API");
-  }
+const TYPE_TAGS = {
+  hotel: '["tourism"="hotel"]',
+  resort: '["tourism"="resort"]',
+  restaurant: '["amenity"="restaurant"]',
 };
 
-const getDistance = async ({ originLat, originLng, destLat, destLng }) => {
-  if (!originLat || !originLng || !destLat || !destLng) {
-    throw new ApiError(400, "Missing or invalid parameters");
+const formatAddress = (tags = {}) =>
+  [tags["addr:housenumber"], tags["addr:street"], tags["addr:city"]].filter(Boolean).join(", ");
+
+/** Shapes the response like Google's Places Nearby Search so the frontend doesn't need to change. */
+const getNearbyPlaces = async ({ location, radius, type }) => {
+  const tagFilter = TYPE_TAGS[type];
+  if (!tagFilter) {
+    throw new ApiError(400, `Unsupported place type: ${type}`);
   }
 
-  const origin = `${originLat},${originLng}`;
-  const destination = `${destLat},${destLng}`;
-  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${env.googleMapsApiKey}`;
+  const [lat, lng] = String(location).split(",");
+  const query = `[out:json][timeout:25];(node${tagFilter}(around:${radius},${lat},${lng});way${tagFilter}(around:${radius},${lat},${lng}););out center 20;`;
 
   let response;
   try {
-    response = await axios.get(url);
+    response = await axios.post(OVERPASS_URL, `data=${encodeURIComponent(query)}`, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Tourists-Travel-App/1.0",
+      },
+    });
   } catch {
-    throw new ApiError(500, "Failed to fetch distance from Google API");
+    throw new ApiError(500, "Failed to fetch data from Overpass API");
   }
 
-  if (response.data.status !== "OK") {
-    throw new ApiError(500, "Failed to fetch distance from Google API");
-  }
+  const results = (response.data.elements || [])
+    .filter((el) => el.tags?.name)
+    .map((el) => {
+      const elLat = el.type === "node" ? el.lat : el.center?.lat;
+      const elLng = el.type === "node" ? el.lon : el.center?.lon;
+      return {
+        place_id: `${el.type}/${el.id}`,
+        name: el.tags.name,
+        geometry: { location: { lat: elLat, lng: elLng } },
+        vicinity: formatAddress(el.tags),
+      };
+    });
 
-  const distance = response.data.rows[0].elements[0].distance.text;
-  const duration = response.data.rows[0].elements[0].duration.text;
-  return { distance, duration };
+  return { results };
 };
 
-module.exports = { getNearbyPlaces, getDistance };
+module.exports = { getNearbyPlaces };
