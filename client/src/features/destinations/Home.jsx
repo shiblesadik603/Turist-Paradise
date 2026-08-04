@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import * as destinationsApi from "../../api/destinations.api";
-import * as mapsApi from "../../api/maps.api";
-import { useDirections } from "./useDirections";
 import { HeroSection } from "./HeroSection";
 import { TourTypes } from "./TourTypes";
 import { Collections } from "./Collections";
@@ -9,7 +7,6 @@ import { FeaturedSpots } from "./FeaturedSpots";
 import { QualityBand } from "./QualityBand";
 import { AboutSection } from "./AboutSection";
 import { SpotGrid } from "./SpotGrid";
-import { SpotDetailsPanel } from "./SpotDetailsPanel";
 import "./Home.css";
 
 const scrollToDestinations = () => {
@@ -21,13 +18,8 @@ export const Home = () => {
   const [filteredSpots, setFilteredSpots] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilterLabel, setActiveFilterLabel] = useState(null);
-  const [selectedSpot, setSelectedSpot] = useState(null);
-  const [nearbyPlaces, setNearbyPlaces] = useState([]);
-  const [selectedPlace, setSelectedPlace] = useState(null);
   const [spotsLoading, setSpotsLoading] = useState(true);
   const [spotsError, setSpotsError] = useState(null);
-
-  const { directions, travelDetails, getDirections, resetDirections } = useDirections();
 
   useEffect(() => {
     destinationsApi
@@ -73,39 +65,6 @@ export const Home = () => {
     setFilteredSpots(touristSpots);
   };
 
-  const fetchNearbyPlaces = (lat, lng, type) => {
-    const radius = 5000;
-    mapsApi
-      .getNearbyPlaces(`${lat},${lng}`, radius, type)
-      .then((response) => {
-        const places = response.data.data.results.map((place) => ({
-          id: place.place_id,
-          name: place.name,
-          lat: place.geometry.location.lat,
-          lng: place.geometry.location.lng,
-          address: place.vicinity,
-        }));
-        setNearbyPlaces(places);
-      })
-      .catch((error) => console.error("Error fetching places:", error));
-  };
-
-  const handleSelectSpot = (spot) => {
-    setSelectedSpot(spot);
-    resetDirections();
-    fetchNearbyPlaces(spot.latitude, spot.longitude, "hotel");
-    setTimeout(() => {
-      document
-        .getElementById("map-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-  };
-
-  useEffect(() => {
-    resetDirections();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSpot]);
-
   return (
     <div className="home">
       <HeroSection
@@ -116,7 +75,7 @@ export const Home = () => {
 
       <TourTypes onSelectType={handleSelectTourType} />
       <Collections onSelectCollection={handleSelectCollection} />
-      <FeaturedSpots spots={touristSpots} onExplore={handleSelectSpot} />
+      <FeaturedSpots spots={touristSpots} />
       <QualityBand />
       <AboutSection />
 
@@ -133,27 +92,7 @@ export const Home = () => {
           </div>
         )}
 
-        <SpotGrid
-          spots={filteredSpots}
-          loading={spotsLoading}
-          error={spotsError}
-          onSelectSpot={handleSelectSpot}
-        />
-
-        {selectedSpot && (
-          <SpotDetailsPanel
-            selectedSpot={selectedSpot}
-            nearbyPlaces={nearbyPlaces}
-            selectedPlace={selectedPlace}
-            onSelectPlace={setSelectedPlace}
-            directions={directions}
-            travelDetails={travelDetails}
-            onFetchNearby={(type) =>
-              fetchNearbyPlaces(selectedSpot.latitude, selectedSpot.longitude, type)
-            }
-            onGetDirections={() => getDirections(selectedSpot)}
-          />
-        )}
+        <SpotGrid spots={filteredSpots} loading={spotsLoading} error={spotsError} />
       </section>
     </div>
   );

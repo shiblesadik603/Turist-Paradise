@@ -10,7 +10,7 @@ export const SpotMap = ({
 }) => (
   <div
     style={{
-      width: "50%",
+      width: "100%",
       height: "500px",
       borderRadius: "16px",
       overflow: "hidden",

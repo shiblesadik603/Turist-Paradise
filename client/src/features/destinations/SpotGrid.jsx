@@ -1,7 +1,7 @@
 import { SpotCard } from "./SpotCard";
 
 /** Search results grid with loading/error/empty states. */
-export const SpotGrid = ({ spots, loading, error, onSelectSpot }) => {
+export const SpotGrid = ({ spots, loading, error }) => {
   if (loading) {
     return (
       <div className="spots-loading">
@@ -22,7 +22,7 @@ export const SpotGrid = ({ spots, loading, error, onSelectSpot }) => {
   return (
     <div className="spot-grid">
       {spots.map((spot) => (
-        <SpotCard key={spot._id} spot={spot} onClick={() => onSelectSpot(spot)} />
+        <SpotCard key={spot._id} spot={spot} />
       ))}
     </div>
   );

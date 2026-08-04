@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { Login } from "./features/auth/Login";
 import { SignUp } from "./features/auth/Signup";
 import { Home } from "./features/destinations/Home";
+import { SpotDetail } from "./features/destinations/SpotDetail";
 import { Userprofile } from "./features/profile/Userprofile";
 import { TravelPlan } from "./features/planner/TravelPlan";
 import { SavedPlan } from "./features/planner/SavedPlan";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/home" element={<ProtectedRoute component={Home} />} />
+            <Route path="/destinations/:slug" element={<ProtectedRoute component={SpotDetail} />} />
             <Route path="/userprofile" element={<ProtectedRoute component={Userprofile} />} />
             <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
             <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />

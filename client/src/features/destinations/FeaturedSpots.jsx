@@ -1,7 +1,8 @@
+import { Link } from "react-router-dom";
 import { FEATURED_SPOT_NAMES, getTourTypeLabel } from "./spotCategories";
 
 /** Large feature cards for a handful of standout spots, pulled from the live spots list. */
-export const FeaturedSpots = ({ spots, onExplore }) => {
+export const FeaturedSpots = ({ spots }) => {
   const featured = FEATURED_SPOT_NAMES.map((name) =>
     spots.find((spot) => spot.name === name)
   ).filter(Boolean);
@@ -24,9 +25,9 @@ export const FeaturedSpots = ({ spots, onExplore }) => {
               <span className="featured-card__type">{getTourTypeLabel(spot.name)}</span>
               <h3 className="featured-card__name">{spot.name}</h3>
               <p className="featured-card__description">{spot.description}</p>
-              <button type="button" className="featured-card__cta" onClick={() => onExplore(spot)}>
+              <Link to={`/destinations/${spot.slug}`} className="featured-card__cta">
                 Explore
-              </button>
+              </Link>
             </div>
           </div>
         ))}
