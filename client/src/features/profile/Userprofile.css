@@ -9,7 +9,7 @@
 /* Cover banner */
 .profile-cover {
   position: relative;
-  height: 260px;
+  height: 340px;
   width: 100%;
   overflow: hidden;
 }
@@ -39,14 +39,15 @@
 .profile-cover__text {
   position: relative;
   z-index: 1;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
   color: #fff;
-  padding: 0 20px;
+  /* top padding clears the fixed navbar (64px) with room to spare */
+  padding: 80px 20px 0;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .profile-cover__eyebrow {
@@ -94,7 +95,7 @@
 .profile-image-container {
   position: relative;
   display: inline-block;
-  margin-top: -70px;
+  margin-top: -45px;
   margin-bottom: 16px;
 }
 
@@ -277,15 +278,24 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .profile-cover {
-    height: 200px;
+    height: 260px;
+  }
+
+  .profile-cover__text {
+    padding-top: 76px;
   }
 
   .profile-cover__text h1 {
     font-size: 1.8rem;
   }
 
+  .profile-cover__text p {
+    font-size: 0.85rem;
+  }
+
   .profile-container {
     padding: 0 20px 30px;
+    margin-top: -40px;
   }
 
   .profile-image {
@@ -298,7 +308,7 @@
   }
 
   .profile-image-container {
-    margin-top: -55px;
+    margin-top: -40px;
   }
 }
 

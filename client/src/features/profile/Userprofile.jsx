@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as usersApi from "../../api/users.api";
-import { getUserId } from "../../utils/authStorage";
+import { clearSession, getUserId } from "../../utils/authStorage";
 import "./Userprofile.css";
 
 const getInitials = (name) => {
@@ -24,31 +25,39 @@ export const Userprofile = () => {
   });
   const [status, setStatus] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const userId = getUserId();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (userId) {
-      usersApi
-        .getUser(userId)
-        .then((response) => {
-          const user = response.data.data;
-          setUserData(user);
-          setEditableData({
-            name: user.name,
-            email: user.email,
-            phonenum: user.phonenum || "",
-            address: user.address || "",
-            image: user.image || null,
-          });
-        })
-        .catch((err) => {
-          console.error("Error fetching user profile:", err);
-          setStatus({
-            type: "error",
-            message: "Couldn't load your profile. Please refresh the page.",
-          });
-        });
+    if (!userId) {
+      setLoadError("You're not signed in. Please log in to view your profile.");
+      return;
     }
+
+    usersApi
+      .getUser(userId)
+      .then((response) => {
+        const user = response.data.data;
+        setUserData(user);
+        setEditableData({
+          name: user.name,
+          email: user.email,
+          phonenum: user.phonenum || "",
+          address: user.address || "",
+          image: user.image || null,
+        });
+      })
+      .catch((err) => {
+        console.error("Error fetching user profile:", err);
+        const statusCode = err.response?.status;
+        if (statusCode === 401 || statusCode === 404) {
+          clearSession();
+          setLoadError("Your session has expired. Please log in again.");
+        } else {
+          setLoadError("Couldn't load your profile. Please check your connection and try again.");
+        }
+      });
   }, [userId]);
 
   const handleInputChange = (e) => {
@@ -214,6 +223,13 @@ export const Userprofile = () => {
               </button>
             </div>
           </>
+        ) : loadError ? (
+          <div className="loading-message">
+            <div className="profile-status profile-status--error">{loadError}</div>
+            <button className="update-button" onClick={() => navigate("/login")}>
+              Go to login
+            </button>
+          </div>
         ) : (
           <div className="loading-message">
             <div style={{ textAlign: "center" }}>
