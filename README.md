@@ -117,11 +117,11 @@ Every response follows `{ success: boolean, message: string, data: object|array|
    ```
    See `server/.env.example` and `client/.env.example` for the full list of required variables (Mongo URI, JWT secret, API keys, backend URL). The server validates all required variables at startup and fails fast with a clear message if any are missing.
 
-3. **Seed the destination catalog** (optional, but the Home page is empty without it):
+3. **Seed the destination and shop catalogs** (optional, but the Home and Shop pages are empty without it):
    ```
    npm run seed --prefix server
    ```
-   Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates. Safe to re-run — it upserts by name instead of creating duplicates. See `server/src/seed/touristSpots.data.js` to edit or extend the list.
+   Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates, plus 4+ real products in every shop category (power, sleep, bags, rain, security). Safe to re-run — both seeds upsert instead of creating duplicates. Run them independently with `npm run seed:spots --prefix server` / `npm run seed:shop --prefix server`. See `server/src/seed/touristSpots.data.js` and `server/src/seed/shopProducts.data.js` to edit or extend either list.
 
 4. **Run the backend**
    ```
