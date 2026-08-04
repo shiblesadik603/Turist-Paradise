@@ -13,6 +13,25 @@ const TYPE_TAGS = {
 const formatAddress = (tags = {}) =>
   [tags["addr:housenumber"], tags["addr:street"], tags["addr:city"]].filter(Boolean).join(", ");
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** The public Overpass instance is flaky under load — one retry clears most transient failures. */
+const queryOverpass = async (query, attempt = 1) => {
+  try {
+    return await axios.post(OVERPASS_URL, `data=${encodeURIComponent(query)}`, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Tourists-Travel-App/1.0",
+      },
+      timeout: 15000,
+    });
+  } catch (err) {
+    if (attempt >= 2) throw err;
+    await sleep(800);
+    return queryOverpass(query, attempt + 1);
+  }
+};
+
 /** Shapes the response like Google's Places Nearby Search so the frontend doesn't need to change. */
 const getNearbyPlaces = async ({ location, radius, type }) => {
   const tagFilter = TYPE_TAGS[type];
@@ -25,14 +44,13 @@ const getNearbyPlaces = async ({ location, radius, type }) => {
 
   let response;
   try {
-    response = await axios.post(OVERPASS_URL, `data=${encodeURIComponent(query)}`, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "Tourists-Travel-App/1.0",
-      },
-    });
-  } catch {
-    throw new ApiError(500, "Failed to fetch data from Overpass API");
+    response = await queryOverpass(query);
+  } catch (err) {
+    console.error("Overpass API request failed:", err.message);
+    throw new ApiError(
+      502,
+      "The nearby-places service is temporarily unavailable. Please try again."
+    );
   }
 
   const results = (response.data.elements || [])

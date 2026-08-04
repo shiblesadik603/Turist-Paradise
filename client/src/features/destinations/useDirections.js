@@ -7,10 +7,12 @@ const OSRM_ROUTE_URL = "https://router.project-osrm.org/route/v1/driving";
 export const useDirections = () => {
   const [directions, setDirections] = useState(null);
   const [travelDetails, setTravelDetails] = useState(null);
+  const [directionsLoading, setDirectionsLoading] = useState(false);
 
   const reset = useCallback(() => {
     setDirections(null);
     setTravelDetails(null);
+    setDirectionsLoading(false);
   }, []);
 
   const getDirections = (selectedSpot) => {
@@ -25,6 +27,8 @@ export const useDirections = () => {
       alert("Geolocation is not supported by this browser.");
       return;
     }
+
+    setDirectionsLoading(true);
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -78,14 +82,17 @@ export const useDirections = () => {
             message:
               "No driving route found. This might be due to a water body between locations, or the route isn't mapped.",
           });
+        } finally {
+          setDirectionsLoading(false);
         }
       },
       (error) => {
         console.error("Geolocation error:", error);
+        setDirectionsLoading(false);
         alert("Unable to get your current location. Please enable location services.");
       }
     );
   };
 
-  return { directions, travelDetails, getDirections, resetDirections: reset };
+  return { directions, travelDetails, directionsLoading, getDirections, resetDirections: reset };
 };

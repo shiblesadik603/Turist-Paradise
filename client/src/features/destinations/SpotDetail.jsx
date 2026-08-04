@@ -22,8 +22,12 @@ export const SpotDetail = () => {
   const [error, setError] = useState(null);
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const [nearbySearching, setNearbySearching] = useState(false);
+  const [nearbyError, setNearbyError] = useState(null);
+  const [nearbyMessage, setNearbyMessage] = useState(null);
 
-  const { directions, travelDetails, getDirections, resetDirections } = useDirections();
+  const { directions, travelDetails, directionsLoading, getDirections, resetDirections } =
+    useDirections();
 
   useEffect(() => {
     setLoading(true);
@@ -46,6 +50,10 @@ export const SpotDetail = () => {
 
   const fetchNearbyPlaces = (type) => {
     if (!spot) return;
+    setNearbySearching(true);
+    setNearbyError(null);
+    setNearbyMessage(null);
+
     mapsApi
       .getNearbyPlaces(`${spot.latitude},${spot.longitude}`, 5000, type)
       .then((response) => {
@@ -57,8 +65,27 @@ export const SpotDetail = () => {
           address: place.vicinity,
         }));
         setNearbyPlaces(places);
+
+        if (places.length > 0) {
+          setNearbyMessage(
+            `Found ${places.length} ${type}${places.length === 1 ? "" : "s"} nearby — see the map below.`
+          );
+          document
+            .getElementById("spot-map-section")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          setNearbyMessage(
+            `No ${type}s found within 5km of ${spot.name}. This can happen in more remote areas where fewer businesses are mapped yet.`
+          );
+        }
       })
-      .catch((err) => console.error("Error fetching places:", err));
+      .catch((err) => {
+        console.error("Error fetching places:", err);
+        setNearbyError(
+          err.response?.data?.message || "Couldn't load nearby places. Please try again."
+        );
+      })
+      .finally(() => setNearbySearching(false));
   };
 
   if (loading) {
@@ -207,10 +234,26 @@ export const SpotDetail = () => {
             onFetchNearby={fetchNearbyPlaces}
             onGetDirections={() => getDirections(spot)}
           />
+          {nearbySearching && (
+            <div className="nearby-status nearby-status--loading">
+              <span className="nearby-status__spinner" />
+              Searching nearby...
+            </div>
+          )}
+          {nearbyError && <div className="nearby-status nearby-status--error">{nearbyError}</div>}
+          {nearbyMessage && !nearbySearching && (
+            <div className="nearby-status nearby-status--success">{nearbyMessage}</div>
+          )}
+          {directionsLoading && (
+            <div className="nearby-status nearby-status--loading">
+              <span className="nearby-status__spinner" />
+              Getting your location and finding a route...
+            </div>
+          )}
           {travelDetails && <TravelDetailsPanel travelDetails={travelDetails} />}
         </section>
 
-        <section className="detail-section">
+        <section className="detail-section" id="spot-map-section">
           <h2 className="detail-section__title">Map</h2>
           <SpotMap
             selectedSpot={spot}
