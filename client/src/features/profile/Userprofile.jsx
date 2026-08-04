@@ -3,6 +3,16 @@ import * as usersApi from "../../api/users.api";
 import { getUserId } from "../../utils/authStorage";
 import "./Userprofile.css";
 
+const getInitials = (name) => {
+  if (!name) return "?";
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "");
+  return initials.join("") || "?";
+};
+
 export const Userprofile = () => {
   const [userData, setUserData] = useState(null);
   const [editableData, setEditableData] = useState({
@@ -12,6 +22,8 @@ export const Userprofile = () => {
     address: "",
     image: null,
   });
+  const [status, setStatus] = useState(null);
+  const [saving, setSaving] = useState(false);
   const userId = getUserId();
 
   useEffect(() => {
@@ -31,6 +43,10 @@ export const Userprofile = () => {
         })
         .catch((err) => {
           console.error("Error fetching user profile:", err);
+          setStatus({
+            type: "error",
+            message: "Couldn't load your profile. Please refresh the page.",
+          });
         });
     }
   }, [userId]);
@@ -54,24 +70,27 @@ export const Userprofile = () => {
   };
 
   const handleUpdate = () => {
+    setSaving(true);
+    setStatus(null);
     const formData = new FormData();
     formData.append("name", editableData.name);
     formData.append("phonenum", editableData.phonenum);
     formData.append("address", editableData.address);
-    if (editableData.image) {
+    if (editableData.image instanceof File) {
       formData.append("image", editableData.image);
     }
 
     usersApi
       .updateUser(userId, formData)
       .then((response) => {
-        alert("Profile updated successfully!");
         setUserData(response.data.data);
+        setStatus({ type: "success", message: "Profile updated successfully." });
       })
       .catch((err) => {
         console.error("Error updating profile:", err);
-        alert("Failed to update profile");
-      });
+        setStatus({ type: "error", message: "Failed to update profile. Please try again." });
+      })
+      .finally(() => setSaving(false));
   };
 
   const getCurrentImageSrc = () => {
@@ -83,26 +102,39 @@ export const Userprofile = () => {
     return null;
   };
 
+  const currentImageSrc = getCurrentImageSrc();
+
   return (
     <div className="user-profile">
-      <div className="profile-container">
-        <div className="profile-header">
+      <div className="profile-cover">
+        <img src="/photos/vintage-postcards.jpeg" alt="" className="profile-cover__bg" />
+        <div className="profile-cover__scrim" />
+        <div className="profile-cover__text">
+          <span className="profile-cover__eyebrow">Your account</span>
           <h1>Profile</h1>
-          <p className="profile-subtitle">Manage your account information</p>
+          <p>Manage the details on your Tourists account</p>
         </div>
+      </div>
 
+      <div className="profile-container">
         {userData ? (
           <>
             <div className="profile-image-section">
               <div className="profile-image-container">
-                <img
-                  src={getCurrentImageSrc() || "https://via.placeholder.com/120x120?text=Profile"}
-                  alt="Profile"
-                  className="profile-image"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/120x120?text=Profile";
-                  }}
-                />
+                {currentImageSrc ? (
+                  <img
+                    src={currentImageSrc}
+                    alt="Profile"
+                    className="profile-image"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="profile-image profile-image--placeholder">
+                    {getInitials(editableData.name)}
+                  </div>
+                )}
                 <label className="image-upload-label" htmlFor="image-upload">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -116,10 +148,16 @@ export const Userprofile = () => {
                   className="image-upload-input"
                 />
               </div>
-              {!getCurrentImageSrc() && (
+              {!currentImageSrc && (
                 <p className="no-image-message">Click the icon to upload a profile picture</p>
               )}
             </div>
+
+            {status && (
+              <div className={`profile-status profile-status--${status.type}`}>
+                {status.message}
+              </div>
+            )}
 
             <div className="profile-form">
               <div className="input-group">
@@ -171,25 +209,15 @@ export const Userprofile = () => {
                 />
               </div>
 
-              <button className="update-button" onClick={handleUpdate}>
-                Update Profile
+              <button className="update-button" onClick={handleUpdate} disabled={saving}>
+                {saving ? "Saving..." : "Update Profile"}
               </button>
             </div>
           </>
         ) : (
           <div className="loading-message">
             <div style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  border: "4px solid #e2e8f0",
-                  borderTop: "4px solid #667eea",
-                  borderRadius: "50%",
-                  animation: "spin 1s linear infinite",
-                  margin: "0 auto 20px",
-                }}
-              ></div>
+              <div className="loading-spinner" />
               Loading your profile...
             </div>
           </div>
