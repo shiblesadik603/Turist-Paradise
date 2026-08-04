@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { TextField, Button, Typography, Alert, Checkbox, FormControlLabel } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import { useAuth } from "../../hooks/useAuth";
@@ -16,6 +16,8 @@ export const Login = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [justSignedUp] = useState(Boolean(location.state?.justSignedUp));
   const { login } = useAuth();
 
   const emailError = touched && email && !isValidEmail(email) ? "Enter a valid email address" : "";
@@ -63,6 +65,12 @@ export const Login = () => {
           Create an account
         </Link>
       </Typography>
+
+      {justSignedUp && !error && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Account created! Please log in to continue.
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>

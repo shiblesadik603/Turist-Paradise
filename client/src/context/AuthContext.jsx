@@ -15,10 +15,9 @@ export const AuthProvider = ({ children }) => {
     setUserId(user._id);
   };
 
+  // Signup only creates the account — it doesn't start a session. The user logs in separately.
   const signup = async (name, email, password) => {
-    const response = await authApi.signup(name, email, password);
-    const { user, token: jwt } = response.data.data;
-    persistSession(user, jwt, false);
+    await authApi.signup(name, email, password);
   };
 
   const login = async (email, password, rememberMe) => {

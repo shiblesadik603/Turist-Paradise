@@ -36,7 +36,7 @@ export const SignUp = () => {
     setSubmitting(true);
     try {
       await signup(name.trim(), email, password);
-      navigate("/home");
+      navigate("/login", { state: { justSignedUp: true } });
     } catch (err) {
       console.error("Error signing up:", err);
       if (err.response && err.response.data.message) {
