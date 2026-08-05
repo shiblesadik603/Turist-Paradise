@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as usersApi from "../../api/users.api";
 import { clearSession, getUserId } from "../../utils/authStorage";
+import { SavedTrips } from "../planner/SavedTrips";
 import "./Userprofile.css";
 
 const getInitials = (name) => {
@@ -239,6 +240,16 @@ export const Userprofile = () => {
           </div>
         )}
       </div>
+
+      {userData && (
+        <div className="profile-trips-section">
+          <div className="profile-trips-header">
+            <h2>My Saved Trips</h2>
+            <p>Every itinerary you&apos;ve generated on the Our Work page, saved here.</p>
+          </div>
+          <SavedTrips />
+        </div>
+      )}
     </div>
   );
 };

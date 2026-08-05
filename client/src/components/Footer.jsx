@@ -24,7 +24,7 @@ export const Footer = () => (
         <Link to="/shop">Shop</Link>
         <Link to="/blogs">Blogs</Link>
         <Link to="/travelplan">Plan a Trip</Link>
-        <Link to="/savedplan">My Trips</Link>
+        <Link to="/userprofile">My Trips</Link>
       </div>
 
       <div className="site-footer__col">

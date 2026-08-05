@@ -6,10 +6,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { chatSession } from "../../api/gemini.api";
 import * as plannerApi from "../../api/planner.api";
 import { getUserId } from "../../utils/authStorage";
+import { TripPlanDetails } from "./TripPlanDetails";
+import "./TripPlans.css";
 import "./TravelPlan.css";
 
 export const TravelPlan = () => {
   const [formData, setFormData] = useState({});
+  const [generating, setGenerating] = useState(false);
+  const [generatedPlan, setGeneratedPlan] = useState(null);
   const userId = getUserId();
 
   const handleInputChange = (name, value) => {
@@ -34,12 +38,13 @@ export const TravelPlan = () => {
       .replace("{traveler}", formData?.traveler)
       .replace("{budget}", formData?.budget);
 
+    setGenerating(true);
+
     try {
       const result = await chatSession.sendMessage(FINAL_PROMPT);
       const responseText = await result?.response?.text();
 
       const travelPlanData = JSON.parse(responseText);
-      travelPlanData.userId = userId;
 
       const formattedItinerary = Object.keys(travelPlanData.itinerary).map((dayKey) => {
         const dayPlan = travelPlanData.itinerary[dayKey];
@@ -50,15 +55,25 @@ export const TravelPlan = () => {
         };
       });
 
+      const travelerOption = SelectTravelsList.find((item) => item.people === formData.traveler);
+
+      travelPlanData.userId = userId;
+      travelPlanData.location = formData.location.label;
+      travelPlanData.duration = `${formData.noOfDays} Days`;
+      travelPlanData.travelers = travelerOption ? travelerOption.title : String(formData.traveler);
+      travelPlanData.budget = formData.budget;
       travelPlanData.itinerary = formattedItinerary;
 
       const response = await plannerApi.createTripPlan(travelPlanData);
       if (response.status === 201) {
-        toast.success("Travel plan saved successfully!");
+        setGeneratedPlan(response.data.data);
+        toast.success("Travel plan generated and saved!");
       }
     } catch (error) {
       console.error("Error saving travel plan:", error);
-      toast.error("Failed to save travel plan");
+      toast.error("Failed to generate travel plan. Please try again.");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -151,10 +166,27 @@ export const TravelPlan = () => {
           </div>
         </div>
 
-        <button className="generate-button" onClick={OnGenerateTrip}>
-          Generate Trip
+        <button className="generate-button" onClick={OnGenerateTrip} disabled={generating}>
+          {generating ? "Generating your trip..." : "Generate Trip"}
         </button>
       </div>
+
+      {generatedPlan && (
+        <div className="generated-trip-card">
+          <div className="generated-trip-card__header">
+            <span className="generated-trip-card__badge">Just Generated</span>
+            <div className="modal-title">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+              {generatedPlan.location}
+            </div>
+          </div>
+          <div className="modal-body">
+            <TripPlanDetails plan={generatedPlan} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

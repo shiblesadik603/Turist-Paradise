@@ -1,92 +1,10 @@
-/* Full Page Saved Plans Styles */
-.saved-plans-container {
-  min-height: 100vh;
-  background: #f4f6f8;
-  padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  overflow-x: hidden;
-}
-
-/* Hero */
-.saved-hero {
-  position: relative;
-  height: 300px;
-  overflow: hidden;
-}
-
-.saved-hero__bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.saved-hero__scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 30%, rgba(22, 32, 43, 0.4) 0%, rgba(22, 32, 43, 0.78) 70%),
-    linear-gradient(
-      180deg,
-      rgba(22, 32, 43, 0.5) 0%,
-      rgba(22, 32, 43, 0.4) 40%,
-      rgba(22, 32, 43, 0.85) 100%
-    );
-}
-
-.saved-hero__content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 90px 24px 0;
-  box-sizing: border-box;
-  text-align: center;
-  color: #fff;
-}
-
-.saved-hero__eyebrow {
-  display: inline-block;
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #e2b13c;
-  margin-bottom: 10px;
-}
-
-.saved-hero__content h1 {
-  font-size: 2.6rem;
-  font-weight: 800;
-  margin: 0 0 10px;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-}
-
-.saved-subtitle {
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 1.05rem;
-  font-weight: 400;
-  max-width: 560px;
-  margin: 0 auto;
-  line-height: 1.6;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-.saved-plans-card {
-  background: transparent;
-  padding: 40px 60px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-}
+/* Shared styles for trip plan cards, the saved-trips grid, the view-details
+   modal, and the inline "just generated" trip display. */
 
 /* Plans Grid */
 .plans-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 30px;
   margin-bottom: 40px;
 }
@@ -209,7 +127,7 @@
   line-height: 1.6;
 }
 
-/* Modal Styles */
+/* View-details Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -277,20 +195,19 @@
   transform: scale(1.1) !important;
 }
 
-/* Modal Body */
 .modal-body {
   padding: 30px 40px 40px;
 }
 
-/* Stats */
-.modal-stats {
+/* Trip Stats (Duration / Travelers / Budget) */
+.trip-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 34px;
 }
 
-.modal-stat {
+.trip-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -302,7 +219,7 @@
   border: 1px solid #e2e8f0;
 }
 
-.modal-stat__icon {
+.trip-stat__icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,13 +230,13 @@
   margin-bottom: 4px;
 }
 
-.modal-stat__icon svg {
+.trip-stat__icon svg {
   color: #e2b13c;
   width: 20px;
   height: 20px;
 }
 
-.modal-stat__label {
+.trip-stat__label {
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -327,18 +244,18 @@
   color: #a0aec0;
 }
 
-.modal-stat__value {
+.trip-stat__value {
   font-size: 1.05rem;
   font-weight: 700;
   color: #2d3748;
 }
 
 /* Hotels and Itinerary */
-.modal-section {
+.trip-section {
   margin-bottom: 30px;
 }
 
-.modal-section h4 {
+.trip-section h4 {
   font-size: 1.3rem;
   font-weight: 700;
   color: #2d3748;
@@ -350,7 +267,7 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-.modal-section h4 svg {
+.trip-section h4 svg {
   color: #c9932e;
   width: 20px;
   height: 20px;
@@ -492,41 +409,13 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .saved-plans-card {
-    padding: 30px 40px;
-  }
-
-  .saved-hero__content h1 {
-    font-size: 2.2rem;
-  }
-
   .plans-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
   }
 }
 
 @media (max-width: 768px) {
-  .saved-hero {
-    height: 240px;
-  }
-
-  .saved-hero__content {
-    padding: 80px 20px 0;
-  }
-
-  .saved-hero__content h1 {
-    font-size: 1.9rem;
-  }
-
-  .saved-plans-card {
-    padding: 20px 25px;
-  }
-
-  .saved-subtitle {
-    font-size: 0.95rem;
-  }
-
   .plans-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -564,16 +453,12 @@
     font-size: 1.5rem;
   }
 
-  .modal-stats {
+  .trip-stats {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .saved-plans-card {
-    padding: 15px 20px;
-  }
-
   .plan-card {
     padding: 20px;
   }
@@ -595,7 +480,7 @@
     padding: 20px;
   }
 
-  .modal-stats {
+  .trip-stats {
     grid-template-columns: 1fr;
   }
 }
@@ -633,14 +518,4 @@
 }
 .plan-card:nth-child(6) {
   animation-delay: 0.6s;
-}
-
-/* Remove scrollbar */
-.saved-plans-container::-webkit-scrollbar {
-  display: none;
-}
-
-.saved-plans-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

@@ -13,7 +13,6 @@ import { Home } from "./features/destinations/Home";
 import { SpotDetail } from "./features/destinations/SpotDetail";
 import { Userprofile } from "./features/profile/Userprofile";
 import { TravelPlan } from "./features/planner/TravelPlan";
-import { SavedPlan } from "./features/planner/SavedPlan";
 import { Shop } from "./features/shop/Shop";
 import { Cart } from "./features/cart/Cart";
 import { PaymentSuccess } from "./features/cart/PaymentSuccess";
@@ -35,7 +34,6 @@ function App() {
             <Route path="/destinations/:slug" element={<ProtectedRoute component={SpotDetail} />} />
             <Route path="/userprofile" element={<ProtectedRoute component={Userprofile} />} />
             <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
-            <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
             <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
             <Route path="/cart" element={<ProtectedRoute component={Cart} />} />
             <Route

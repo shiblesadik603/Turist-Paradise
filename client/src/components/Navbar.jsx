@@ -17,7 +17,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkIcon from "@mui/icons-material/Work";
-import TripIcon from "@mui/icons-material/Flight";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
@@ -30,7 +29,6 @@ import * as usersApi from "../api/users.api";
 const NAV_LINKS = [
   { to: "/home", label: "Home", icon: HomeIcon },
   { to: "/travelplan", label: "Our Work", icon: WorkIcon },
-  { to: "/savedplan", label: "Your Trip", icon: TripIcon },
   { to: "/shop", label: "Shop", icon: StorefrontIcon },
   { to: "/blogs", label: "Blogs", icon: ArticleIcon },
 ];

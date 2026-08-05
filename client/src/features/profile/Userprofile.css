@@ -275,6 +275,31 @@
   margin-top: 10px;
 }
 
+/* Saved Trips Section */
+.profile-trips-section {
+  max-width: 1200px;
+  margin: 60px auto 0;
+  padding: 0 40px;
+}
+
+.profile-trips-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-trips-header h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #2d3748;
+  margin: 0 0 8px;
+}
+
+.profile-trips-header p {
+  color: #718096;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .profile-cover {
@@ -296,6 +321,15 @@
   .profile-container {
     padding: 0 20px 30px;
     margin-top: -40px;
+  }
+
+  .profile-trips-section {
+    margin-top: 40px;
+    padding: 0 20px;
+  }
+
+  .profile-trips-header h2 {
+    font-size: 1.5rem;
   }
 
   .profile-image {
