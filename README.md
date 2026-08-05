@@ -32,7 +32,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 | Payments | SSLCommerz (sandbox) |
 | Security | Helmet, express-rate-limit |
 | API docs | Swagger UI (OpenAPI 3.0) at `/api/docs` |
-| Tooling | ESLint, Prettier |
+| Tooling | ESLint, Prettier, Docker Compose, GitHub Actions CI |
 
 ---
 
@@ -153,6 +153,19 @@ Every response follows `{ success: boolean, message: string, data: object|array|
    npm run lint --prefix server
    npm run format --prefix server
    ```
+
+### Running with Docker
+
+An alternative to the manual setup above — `docker-compose.yml` wires up Mongo, Redis, the server, and the client together.
+
+```
+cp .env.example .env   # fill in JWT_SECRET, SSLCOMMERZ creds, weather/Gemini keys
+docker compose up --build
+```
+
+The client is served at `http://localhost:8080`, the API at `http://localhost:3001` (docs at `/api/docs`). Vite bakes its `VITE_*` env vars in at build time, so changing them requires `docker compose up --build` again, not just a restart.
+
+> These Dockerfiles/compose file follow standard patterns for a Node + Mongo + Vite/nginx app but haven't been verified against a real Docker install in this environment — if something doesn't build cleanly, it's worth a second look before relying on it in production.
 
 ---
 

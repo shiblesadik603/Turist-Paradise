@@ -1,0 +1,52 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - redis
+    environment:
+      PORT: 3001
+      MONGO_URI: mongodb://mongo:27017/tourism
+      FRONTEND_URL: http://localhost:8080
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      SSLCOMMERZ_STORE_ID: ${SSLCOMMERZ_STORE_ID}
+      SSLCOMMERZ_STORE_PASSWORD: ${SSLCOMMERZ_STORE_PASSWORD}
+    volumes:
+      - server-uploads:/app/uploads
+    ports:
+      - "3001:3001"
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_BACKEND_URL: http://localhost:3001
+        VITE_OPENWEATHER_API_KEY: ${VITE_OPENWEATHER_API_KEY}
+        VITE_GEMINI_API_KEY: ${VITE_GEMINI_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo-data:
+  redis-data:
+  server-uploads:
