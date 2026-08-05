@@ -1,10 +1,77 @@
 /* Full Page Saved Plans Styles */
 .saved-plans-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f4f6f8;
   padding: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden;
+}
+
+/* Hero */
+.saved-hero {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+}
+
+.saved-hero__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saved-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(22, 32, 43, 0.4) 0%, rgba(22, 32, 43, 0.78) 70%),
+    linear-gradient(
+      180deg,
+      rgba(22, 32, 43, 0.5) 0%,
+      rgba(22, 32, 43, 0.4) 40%,
+      rgba(22, 32, 43, 0.85) 100%
+    );
+}
+
+.saved-hero__content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 90px 24px 0;
+  box-sizing: border-box;
+  text-align: center;
+  color: #fff;
+}
+
+.saved-hero__eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #e2b13c;
+  margin-bottom: 10px;
+}
+
+.saved-hero__content h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.saved-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.05rem;
+  font-weight: 400;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .saved-plans-card {
@@ -14,30 +81,6 @@
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
-}
-
-/* Header */
-.saved-header {
-  text-align: center;
-  margin-bottom: 60px;
-  padding: 40px 0;
-}
-
-.saved-header h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 15px;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.saved-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.3rem;
-  font-weight: 400;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
 }
 
 /* Plans Grid */
@@ -50,12 +93,11 @@
 
 /* Plan Card */
 .plan-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: #fff;
   border-radius: 20px;
   padding: 30px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
@@ -69,7 +111,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #2c3e50, #e2b13c);
 }
 
 .plan-card:hover {
@@ -78,7 +120,7 @@
 }
 
 .plan-card:hover::before {
-  background: linear-gradient(90deg, #764ba2, #667eea);
+  background: linear-gradient(90deg, #e2b13c, #2c3e50);
 }
 
 /* Plan Header */
@@ -101,25 +143,25 @@
 }
 
 .plan-location svg {
-  color: #667eea;
+  color: #2c3e50;
   width: 24px;
   height: 24px;
 }
 
 .delete-button {
-  background: #ff4757 !important;
+  background: #e53e3e !important;
   color: white !important;
   width: 40px !important;
   height: 40px !important;
   border-radius: 50% !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3) !important;
 }
 
 .delete-button:hover {
-  background: #ff3742 !important;
+  background: #c53030 !important;
   transform: scale(1.1) !important;
-  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4) !important;
 }
 
 /* Plan Details */
@@ -139,7 +181,7 @@
 }
 
 .plan-detail svg {
-  color: #667eea;
+  color: #c9932e;
   width: 20px;
   height: 20px;
 }
@@ -147,12 +189,11 @@
 /* Empty State */
 .empty-state {
   text-align: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: #fff;
   border-radius: 20px;
   padding: 60px 40px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
 .empty-state h3 {
@@ -175,7 +216,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(22, 32, 43, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,7 +256,7 @@
 }
 
 .modal-title svg {
-  color: #667eea;
+  color: #2c3e50;
   width: 28px;
   height: 28px;
 }
@@ -248,11 +289,11 @@
   padding: 15px 20px;
   background: #f7fafc;
   border-radius: 12px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #2c3e50;
 }
 
 .modal-detail svg {
-  color: #667eea;
+  color: #2c3e50;
   width: 20px;
   height: 20px;
 }
@@ -280,7 +321,7 @@
 }
 
 .modal-section h4 svg {
-  color: #667eea;
+  color: #c9932e;
   width: 20px;
   height: 20px;
 }
@@ -298,7 +339,7 @@
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #2c3e50;
   transition: all 0.3s ease;
 }
 
@@ -335,7 +376,7 @@
 }
 
 .place-item:hover {
-  border-left-color: #667eea;
+  border-left-color: #e2b13c;
   background: #f8fafc;
 }
 
@@ -345,8 +386,8 @@
     padding: 30px 40px;
   }
 
-  .saved-header h1 {
-    font-size: 3rem;
+  .saved-hero__content h1 {
+    font-size: 2.2rem;
   }
 
   .plans-grid {
@@ -356,21 +397,24 @@
 }
 
 @media (max-width: 768px) {
+  .saved-hero {
+    height: 240px;
+  }
+
+  .saved-hero__content {
+    padding: 80px 20px 0;
+  }
+
+  .saved-hero__content h1 {
+    font-size: 1.9rem;
+  }
+
   .saved-plans-card {
     padding: 20px 25px;
   }
 
-  .saved-header {
-    margin-bottom: 40px;
-    padding: 30px 0;
-  }
-
-  .saved-header h1 {
-    font-size: 2.5rem;
-  }
-
   .saved-subtitle {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
   }
 
   .plans-grid {
@@ -407,10 +451,6 @@
 @media (max-width: 480px) {
   .saved-plans-card {
     padding: 15px 20px;
-  }
-
-  .saved-header h1 {
-    font-size: 2rem;
   }
 
   .plan-card {

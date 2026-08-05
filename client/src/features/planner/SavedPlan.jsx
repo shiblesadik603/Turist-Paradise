@@ -43,12 +43,17 @@ export const SavedPlan = () => {
 
   return (
     <div className="saved-plans-container">
-      <div className="saved-plans-card">
-        <div className="saved-header">
-          <h1>Saved Plans 📋</h1>
+      <div className="saved-hero">
+        <img src="/photos/friends-hiking.jpeg" alt="" className="saved-hero__bg" />
+        <div className="saved-hero__scrim" />
+        <div className="saved-hero__content">
+          <span className="saved-hero__eyebrow">Your Adventures</span>
+          <h1>Saved Plans</h1>
           <p className="saved-subtitle">Your personalized travel itineraries and adventures</p>
         </div>
+      </div>
 
+      <div className="saved-plans-card">
         {savedPlans.length === 0 ? (
           <div className="empty-state">
             <h3>No Saved Plans Yet</h3>

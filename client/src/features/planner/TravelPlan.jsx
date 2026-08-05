@@ -65,14 +65,20 @@ export const TravelPlan = () => {
   return (
     <div className="travel-plan-container">
       <ToastContainer />
-      <div className="travel-plan-card">
-        <div className="travel-header">
-          <h1>Travel Plan ⛺</h1>
+
+      <div className="travel-hero">
+        <img src="/photos/travel-journal.jpeg" alt="" className="travel-hero__bg" />
+        <div className="travel-hero__scrim" />
+        <div className="travel-hero__content">
+          <span className="travel-hero__eyebrow">Plan Your Trip</span>
+          <h1>Travel Plan</h1>
           <p className="travel-subtitle">
             Provide some basic information to generate your travel plan
           </p>
         </div>
+      </div>
 
+      <div className="travel-plan-card">
         <div className="form-section">
           <div className="section-title">
             <svg viewBox="0 0 24 24" fill="currentColor">

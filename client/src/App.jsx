@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider } from "@mui/material";
 
+import { theme } from "./theme";
 import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -19,26 +21,31 @@ import { PaymentFailed } from "./features/cart/PaymentFailed";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/home" element={<ProtectedRoute component={Home} />} />
-          <Route path="/destinations/:slug" element={<ProtectedRoute component={SpotDetail} />} />
-          <Route path="/userprofile" element={<ProtectedRoute component={Userprofile} />} />
-          <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
-          <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
-          <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
-          <Route path="/cart" element={<ProtectedRoute component={Cart} />} />
-          <Route path="/payment-success" element={<ProtectedRoute component={PaymentSuccess} />} />
-          <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/home" element={<ProtectedRoute component={Home} />} />
+            <Route path="/destinations/:slug" element={<ProtectedRoute component={SpotDetail} />} />
+            <Route path="/userprofile" element={<ProtectedRoute component={Userprofile} />} />
+            <Route path="/travelplan" element={<ProtectedRoute component={TravelPlan} />} />
+            <Route path="/savedplan" element={<ProtectedRoute component={SavedPlan} />} />
+            <Route path="/shop" element={<ProtectedRoute component={Shop} />} />
+            <Route path="/cart" element={<ProtectedRoute component={Cart} />} />
+            <Route
+              path="/payment-success"
+              element={<ProtectedRoute component={PaymentSuccess} />}
+            />
+            <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
