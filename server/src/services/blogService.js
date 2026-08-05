@@ -1,6 +1,7 @@
 /** CRUD + reactions/comments for user-written travel blogs. */
 const BlogModel = require("../models/Blog");
 const ApiError = require("../utils/ApiError");
+const { emitBlogUpdate } = require("../socket");
 
 const getAllBlogs = () => BlogModel.find().sort({ createdAt: -1 });
 
@@ -24,6 +25,7 @@ const toggleReaction = async (blogId, userId) => {
     blog.reactions.splice(index, 1);
   }
   await blog.save();
+  emitBlogUpdate(blogId, blog);
   return blog;
 };
 
@@ -31,6 +33,7 @@ const addComment = async (blogId, { authorId, authorName, text }) => {
   const blog = await getBlogById(blogId);
   blog.comments.push({ authorId, authorName, text });
   await blog.save();
+  emitBlogUpdate(blogId, blog);
   return blog;
 };
 

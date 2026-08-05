@@ -8,6 +8,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SendIcon from "@mui/icons-material/Send";
 import * as blogsApi from "../../api/blogs.api";
 import { getUserId } from "../../utils/authStorage";
+import { socket } from "../../socket";
 import "./Blogs.css";
 
 const formatDate = (isoString) =>
@@ -40,6 +41,25 @@ export const BlogDetail = () => {
         setError("We couldn't find that blog. It may have been removed.");
       })
       .finally(() => setLoading(false));
+  }, [id]);
+
+  // Live updates when another visitor reacts or comments on this same blog.
+  useEffect(() => {
+    socket.connect();
+    socket.emit("blog:join", id);
+
+    const handleUpdate = (updatedBlog) => {
+      if (updatedBlog._id === id) {
+        setBlog(updatedBlog);
+      }
+    };
+    socket.on("blog:updated", handleUpdate);
+
+    return () => {
+      socket.off("blog:updated", handleUpdate);
+      socket.emit("blog:leave", id);
+      socket.disconnect();
+    };
   }, [id]);
 
   const handleReact = () => {
