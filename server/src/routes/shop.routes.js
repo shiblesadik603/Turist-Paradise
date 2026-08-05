@@ -10,6 +10,9 @@ const {
   updateStock,
   getCategoryTree,
   getRelatedProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } = require("../controllers/shop.controller");
 
 const router = express.Router();
@@ -22,5 +25,8 @@ router.get("/security", requireAuth, getSecurityProducts);
 router.patch("/:productId/stock", requireAuth, requireRole("admin"), updateStock);
 router.get("/categories", requireAuth, getCategoryTree);
 router.get("/products/:productId/related", requireAuth, getRelatedProducts);
+router.post("/:category", requireAuth, requireRole("admin"), createProduct);
+router.put("/:productId", requireAuth, requireRole("admin"), updateProduct);
+router.delete("/:productId", requireAuth, requireRole("admin"), deleteProduct);
 
 module.exports = router;

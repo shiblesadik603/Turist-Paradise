@@ -58,10 +58,100 @@ const updateProductStock = async (productId, stock) => {
 
 const invalidateCategoryCache = (category) => cacheService.del(cacheKey(category));
 
+/** Admin-only: fields shared by every category schema — see server/src/models/*Product.js. */
+const EDITABLE_FIELDS = ["product_name", "price", "stock", "description", "img_url"];
+
+const pickEditableFields = (data) =>
+  EDITABLE_FIELDS.reduce((fields, key) => {
+    if (data[key] !== undefined) fields[key] = data[key];
+    return fields;
+  }, {});
+
+/** Converts a Mongoose duplicate-key/validation error into a clear 400 instead of leaking a raw 500. */
+const asApiError = (err, duplicateMessage) => {
+  if (err.code === 11000) {
+    return new ApiError(400, duplicateMessage);
+  }
+  if (err.name === "ValidationError") {
+    return new ApiError(400, err.message);
+  }
+  return err;
+};
+
+/** Admin-only: creates a product in the given category. `category` sub-field (the bags enum) is only meaningful for the "bags" collection — Mongoose ignores it for the others. */
+const createProduct = async (category, data) => {
+  const Model = modelsByCategory[category];
+  if (!Model) {
+    throw new ApiError(400, `Unknown category "${category}"`);
+  }
+
+  const fields = { ...pickEditableFields(data), id: data.id };
+  if (category === "bags") {
+    fields.category = data.category;
+  }
+
+  if (
+    !fields.id ||
+    !fields.product_name ||
+    !fields.price ||
+    !fields.description ||
+    !fields.img_url
+  ) {
+    throw new ApiError(400, "id, product_name, price, description, and img_url are required");
+  }
+  if (category === "bags" && !fields.category) {
+    throw new ApiError(400, "category is required for bags products");
+  }
+
+  try {
+    const product = await Model.create(fields);
+    await invalidateCategoryCache(category);
+    return product;
+  } catch (err) {
+    throw asApiError(err, `A product with id "${fields.id}" already exists`);
+  }
+};
+
+/** Admin-only: updates the fields shared across every category schema (plus `category` for bags). */
+const updateProduct = async (productId, data) => {
+  const found = await findProductById(productId);
+  if (!found) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  const fields = pickEditableFields(data);
+  if (found.category === "bags" && data.category !== undefined) {
+    fields.category = data.category;
+  }
+
+  Object.assign(found.product, fields);
+  try {
+    await found.product.save();
+  } catch (err) {
+    throw asApiError(err, `A product with id "${productId}" already exists`);
+  }
+  await invalidateCategoryCache(found.category);
+  return found.product;
+};
+
+/** Admin-only: deletes a product from whichever category collection it lives in. */
+const deleteProduct = async (productId) => {
+  const found = await findProductById(productId);
+  if (!found) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  await found.Model.deleteOne({ id: productId });
+  await invalidateCategoryCache(found.category);
+};
+
 module.exports = {
   modelsByCategory,
   getProductsByCategory,
   findProductById,
   updateProductStock,
   invalidateCategoryCache,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 };

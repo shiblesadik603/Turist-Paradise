@@ -39,6 +39,7 @@ const openApiSpec = {
     { name: "Payment" },
     { name: "Orders" },
     { name: "Blogs" },
+    { name: "Admin" },
   ],
   paths: {
     "/auth/signup": {
@@ -167,6 +168,17 @@ const openApiSpec = {
         responses: { 200: { description: "Logged out" } },
       },
     },
+    "/users": {
+      get: {
+        tags: ["Users"],
+        summary: "List every account (admin only)",
+        security: bearerAuth,
+        responses: {
+          200: { description: "User array, password excluded" },
+          403: { description: "Not an admin" },
+        },
+      },
+    },
     "/users/{userId}": {
       get: {
         tags: ["Users"],
@@ -198,6 +210,40 @@ const openApiSpec = {
         },
         responses: { 200: { description: "Updated user" } },
       },
+      delete: {
+        tags: ["Users"],
+        summary: "Delete a user account (admin only, not your own)",
+        security: bearerAuth,
+        parameters: [{ name: "userId", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Deleted" },
+          400: { description: "Can't delete your own account" },
+        },
+      },
+    },
+    "/users/{userId}/role": {
+      patch: {
+        tags: ["Users"],
+        summary: "Promote/demote a user's role (admin only, not your own)",
+        security: bearerAuth,
+        parameters: [{ name: "userId", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["role"],
+                properties: { role: { type: "string", enum: ["customer", "admin"] } },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Updated user" },
+          400: { description: "Can't change your own role" },
+        },
+      },
     },
     "/destinations": {
       get: {
@@ -205,6 +251,35 @@ const openApiSpec = {
         summary: "List tourist spots",
         security: bearerAuth,
         responses: { 200: { description: "Tourist spot array" } },
+      },
+      post: {
+        tags: ["Destinations"],
+        summary: "Create a destination (admin only)",
+        security: bearerAuth,
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name", "slug"],
+                properties: {
+                  name: { type: "string" },
+                  slug: { type: "string" },
+                  description: { type: "string" },
+                  imageUrl: { type: "string" },
+                  latitude: { type: "number" },
+                  longitude: { type: "number" },
+                  highlights: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: "Created destination" },
+          400: { description: "Slug already exists" },
+        },
       },
     },
     "/destinations/{slug}": {
@@ -214,6 +289,23 @@ const openApiSpec = {
         security: bearerAuth,
         parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
         responses: { 200: { description: "Spot detail" }, 404: { description: "Not found" } },
+      },
+      put: {
+        tags: ["Destinations"],
+        summary: "Update a destination's core fields (admin only)",
+        security: bearerAuth,
+        parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Updated destination" },
+          404: { description: "Not found" },
+        },
+      },
+      delete: {
+        tags: ["Destinations"],
+        summary: "Delete a destination (admin only)",
+        security: bearerAuth,
+        parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 404: { description: "Not found" } },
       },
     },
     "/maps/places": {
@@ -315,6 +407,62 @@ const openApiSpec = {
           },
         ],
         responses: { 200: { description: "Product array, each with a stock count" } },
+      },
+      post: {
+        tags: ["Shop"],
+        summary: "Create a product in a category (admin only)",
+        security: bearerAuth,
+        parameters: [
+          {
+            name: "category",
+            in: "path",
+            required: true,
+            schema: { type: "string", enum: ["power", "sleep", "bags", "rain", "security"] },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["id", "product_name", "price", "description", "img_url"],
+                properties: {
+                  id: { type: "string" },
+                  product_name: { type: "string" },
+                  price: { type: "number" },
+                  stock: { type: "integer" },
+                  description: { type: "string" },
+                  img_url: { type: "string" },
+                  category: {
+                    type: "string",
+                    description: "Required only when the path category is 'bags'",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: "Created product" },
+          400: { description: "Duplicate id" },
+        },
+      },
+    },
+    "/shop/{productId}": {
+      put: {
+        tags: ["Shop"],
+        summary: "Update a product's core fields (admin only)",
+        security: bearerAuth,
+        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated product" }, 404: { description: "Not found" } },
+      },
+      delete: {
+        tags: ["Shop"],
+        summary: "Delete a product (admin only)",
+        security: bearerAuth,
+        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 404: { description: "Not found" } },
       },
     },
     "/shop/{productId}/stock": {
@@ -562,6 +710,20 @@ const openApiSpec = {
           },
         },
         responses: { 200: { description: "Blog with the new comment appended" } },
+      },
+    },
+    "/admin/stats": {
+      get: {
+        tags: ["Admin"],
+        summary: "Dashboard aggregates (admin only)",
+        security: bearerAuth,
+        responses: {
+          200: {
+            description:
+              "{ userCount, orderCount, revenueCents, blogCount, spotCount, productCount, productsByCategory }",
+          },
+          403: { description: "Not an admin" },
+        },
       },
     },
   },

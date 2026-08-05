@@ -30,6 +30,21 @@ const getRelatedProducts = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Related products retrieved", data: products });
 });
 
+const createProduct = asyncHandler(async (req, res) => {
+  const product = await shopService.createProduct(req.params.category, req.body);
+  res.status(201).json({ success: true, message: "Product created", data: product });
+});
+
+const updateProduct = asyncHandler(async (req, res) => {
+  const product = await shopService.updateProduct(req.params.productId, req.body);
+  res.status(200).json({ success: true, message: "Product updated", data: product });
+});
+
+const deleteProduct = asyncHandler(async (req, res) => {
+  await shopService.deleteProduct(req.params.productId);
+  res.status(200).json({ success: true, message: "Product deleted", data: null });
+});
+
 module.exports = {
   getPowerProducts: getProductsByCategory("power", "Power"),
   getSleepProducts: getProductsByCategory("sleep", "Sleep"),
@@ -39,4 +54,7 @@ module.exports = {
   updateStock,
   getCategoryTree,
   getRelatedProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 };
