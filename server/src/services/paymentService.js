@@ -1,14 +1,16 @@
-/** Initializes an SSLCommerz sandbox payment session and returns the gateway redirect URL. */
+/** Creates a pending Order, then initializes an SSLCommerz sandbox payment session for it. */
 const SSLCommerzPayment = require("sslcommerz-lts");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
+const orderService = require("./orderService");
 
 const IS_LIVE = false; // true for live, false for sandbox
 const backendUrl = `http://localhost:${env.port}`;
 
-// userId/cartItems aren't sent to SSLCommerz; kept in the signature to match what the client sends
-const initPayment = async ({ totalAmount, userId: _userId, cartItems: _cartItems }) => {
+const initPayment = async ({ totalAmount, userId, cartItems }) => {
   const transactionId = `T_${Date.now()}`;
+
+  await orderService.createPendingOrder({ tranId: transactionId, userId, cartItems });
 
   const data = {
     total_amount: totalAmount,

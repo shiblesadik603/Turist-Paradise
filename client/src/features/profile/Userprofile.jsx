@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as usersApi from "../../api/users.api";
 import { clearSession, getUserId } from "../../utils/authStorage";
 import { SavedTrips } from "../planner/SavedTrips";
+import { OrderHistory } from "../orders/OrderHistory";
 import "./Userprofile.css";
 
 const getInitials = (name) => {
@@ -248,6 +249,16 @@ export const Userprofile = () => {
             <p>Every itinerary you&apos;ve generated on the Trip Plan page, saved here.</p>
           </div>
           <SavedTrips />
+        </div>
+      )}
+
+      {userData && (
+        <div className="profile-trips-section">
+          <div className="profile-trips-header">
+            <h2>My Orders</h2>
+            <p>Everything you&apos;ve purchased from the Shop, with order status.</p>
+          </div>
+          <OrderHistory />
         </div>
       )}
     </div>

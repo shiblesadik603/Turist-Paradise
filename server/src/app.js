@@ -8,6 +8,8 @@ const { notFound, errorHandler } = require("./middleware/error.middleware");
 const app = express();
 
 app.use(express.json());
+// SSLCommerz posts its success/fail/cancel/ipn callbacks as form-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 

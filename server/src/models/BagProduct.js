@@ -7,6 +7,12 @@ const bagProductSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    stock: {
+      type: Number,
+      required: true,
+      default: 50,
+      min: 0,
+    },
     product_name: {
       type: String,
       required: true,

@@ -15,4 +15,15 @@ const modelsByCategory = {
 
 const getProductsByCategory = (category) => modelsByCategory[category].find();
 
-module.exports = { modelsByCategory, getProductsByCategory };
+/** Finds a product by its catalog id, searching every category (cart items don't carry a category). */
+const findProductById = async (productId) => {
+  for (const Model of Object.values(modelsByCategory)) {
+    const product = await Model.findOne({ id: productId });
+    if (product) {
+      return { Model, product };
+    }
+  }
+  return null;
+};
+
+module.exports = { modelsByCategory, getProductsByCategory, findProductById };

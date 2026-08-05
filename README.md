@@ -12,7 +12,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
 - **Weather forecast** — 5-hour and multi-day outlook plus travel-safety warnings for the selected destination, via OpenWeatherMap.
 - **AI itinerary planner** — generates a day-by-day travel plan (hotels, sights, ticket pricing, best time to visit) from Google's Gemini model, saved to your account.
-- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection), add to cart, and check out via SSLCommerz (sandbox).
+- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection), add to cart, and check out via SSLCommerz (sandbox). Checkout is backed by a real order pipeline: a pending `Order` is created at checkout, verified server-side against SSLCommerz's validation API (never trusting the browser redirect alone), settled exactly once even if the success redirect and IPN webhook both fire, and only then does it atomically decrement product stock and clear the cart. Order history is visible on the profile page.
 - **Travel blogs** — read and write blog posts about real trips, with reactions and comments on each post.
 - **Profile management** — update name, phone, address, and profile photo.
 
@@ -41,8 +41,8 @@ The backend follows a layered structure — routes parse nothing, controllers va
 ```
 server/src/
   config/       env.js validates required env vars at startup; db.js connects to MongoDB
-  models/       Mongoose schemas (User, TouristSpot, TripPlan, cart/product models)
-  services/     business logic + all external API calls (auth, maps, weather-adjacent, shop, cart, payment)
+  models/       Mongoose schemas (User, TouristSpot, TripPlan, Order, cart/product models)
+  services/     business logic + all external API calls (auth, maps, weather-adjacent, shop, cart, order, payment)
   controllers/  thin: parse the request, call a service, shape the { success, message, data } response
   routes/       one router per feature, mounted under /api/v1
   middleware/   JWT auth guard, centralized error handler, multer upload config
@@ -59,7 +59,7 @@ client/src/
   components/   shared UI used across features (Navbar, ProtectedRoute)
   context/      AuthContext — holds the signed-in user's id/token
   hooks/        useAuth (+ feature-local hooks like useDirections, useCategoryProducts)
-  features/     one folder per domain: auth, destinations, planner, weather, shop, cart, blogs, profile
+  features/     one folder per domain: auth, destinations, planner, weather, shop, cart, blogs, orders, profile
   App.jsx       routes, wrapped in AuthProvider
 ```
 
@@ -81,14 +81,15 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 | POST | `/planner` | JWT | trip plan object (`location, userId, duration, travelers, budget, hotels[], itinerary[]`) | saved plan |
 | GET | `/planner/:userId` | JWT | – | plan array |
 | DELETE | `/planner/:id` | JWT | – | – |
-| GET | `/shop/:category` | JWT | category = `power \| sleep \| bags \| rain \| security` | product array |
+| GET | `/shop/:category` | JWT | category = `power \| sleep \| bags \| rain \| security` | product array (each with a `stock` count) |
 | POST | `/cart/add` | JWT | `{ userId, product }` | cart |
 | GET | `/cart/:userId` | JWT | – | `{ products, totalItems, totalPrice }` |
 | PUT | `/cart/update` | JWT | `{ userId, productId, quantity }` | cart |
 | DELETE | `/cart/remove` | JWT | `{ userId, productId }` | cart |
 | DELETE | `/cart/clear/:userId` | JWT | – | – |
-| POST | `/payment/init` | JWT | `{ totalAmount, userId, cartItems }` | `{ url }` — SSLCommerz gateway URL |
-| POST | `/payment/success`, `/fail`, `/cancel` | – (gateway callback) | – | redirects to the frontend |
+| POST | `/payment/init` | JWT | `{ totalAmount, userId, cartItems }` | `{ url }` — SSLCommerz gateway URL; also creates a `pending` Order |
+| POST | `/payment/success`, `/fail`, `/cancel`, `/ipn` | – (gateway callback) | – | verifies the transaction with SSLCommerz and settles the matching Order (idempotent); `success`/`fail`/`cancel` redirect the browser, `ipn` is the server-to-server webhook and just returns 200 |
+| GET | `/orders/:userId` | JWT | – | order array, newest first |
 | GET | `/blogs` | JWT | – | blog array, newest first |
 | GET | `/blogs/:id` | JWT | – | blog with comments |
 | POST | `/blogs` | JWT | `{ title, place, content, imageUrl? }` | created blog |

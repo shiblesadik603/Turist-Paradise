@@ -16,7 +16,13 @@ const run = async () => {
     const Model = modelsByCategory[category];
     for (const product of products) {
       total += 1;
-      const result = await Model.updateOne({ id: product.id }, { $set: product }, { upsert: true });
+      // stock is only set on first insert — re-running the seed must never reset stock that's
+      // already been decremented by real orders
+      const result = await Model.updateOne(
+        { id: product.id },
+        { $set: product, $setOnInsert: { stock: 50 } },
+        { upsert: true }
+      );
       if (result.upsertedCount > 0) {
         created += 1;
       } else if (result.modifiedCount > 0) {
