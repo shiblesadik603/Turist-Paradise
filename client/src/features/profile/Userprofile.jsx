@@ -245,7 +245,7 @@ export const Userprofile = () => {
         <div className="profile-trips-section">
           <div className="profile-trips-header">
             <h2>My Saved Trips</h2>
-            <p>Every itinerary you&apos;ve generated on the Our Work page, saved here.</p>
+            <p>Every itinerary you&apos;ve generated on the Trip Plan page, saved here.</p>
           </div>
           <SavedTrips />
         </div>

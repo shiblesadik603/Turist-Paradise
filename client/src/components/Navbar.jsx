@@ -28,7 +28,7 @@ import * as usersApi from "../api/users.api";
 
 const NAV_LINKS = [
   { to: "/home", label: "Home", icon: HomeIcon },
-  { to: "/travelplan", label: "Our Work", icon: WorkIcon },
+  { to: "/travelplan", label: "Trip Plan", icon: WorkIcon },
   { to: "/shop", label: "Shop", icon: StorefrontIcon },
   { to: "/blogs", label: "Blogs", icon: ArticleIcon },
 ];

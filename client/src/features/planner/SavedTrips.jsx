@@ -44,7 +44,7 @@ export const SavedTrips = () => {
       <div className="empty-state">
         <h3>No Saved Trips Yet</h3>
         <p>
-          Head over to the Our Work page and generate your first itinerary — it will show up here
+          Head over to the Trip Plan page and generate your first itinerary — it will show up here
           once it&apos;s saved.
         </p>
       </div>
