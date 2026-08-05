@@ -1,4 +1,5 @@
 const express = require("express");
+const helmet = require("helmet");
 const cors = require("cors");
 const path = require("path");
 
@@ -7,6 +8,9 @@ const { notFound, errorHandler } = require("./middleware/error.middleware");
 
 const app = express();
 
+// crossOriginResourcePolicy is relaxed because the frontend (a different origin/port)
+// loads images directly from /uploads — Helmet's default would block that.
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(express.json());
 // SSLCommerz posts its success/fail/cancel/ipn callbacks as form-encoded bodies
 app.use(express.urlencoded({ extended: true }));

@@ -1,5 +1,6 @@
 const express = require("express");
 const requireAuth = require("../middleware/auth.middleware");
+const { plannerRateLimiter } = require("../middleware/rateLimit.middleware");
 const {
   createTripPlan,
   getTripPlans,
@@ -8,7 +9,7 @@ const {
 
 const router = express.Router();
 
-router.post("/", requireAuth, createTripPlan);
+router.post("/", requireAuth, plannerRateLimiter, createTripPlan);
 router.get("/:userId", requireAuth, getTripPlans);
 router.delete("/:id", requireAuth, deleteTripPlan);
 
