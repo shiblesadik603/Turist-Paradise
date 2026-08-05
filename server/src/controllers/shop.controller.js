@@ -1,7 +1,8 @@
-/** GET /shop/:category — one handler per product category, all built from the same factory. Also PATCH /shop/:productId/stock (admin only). */
+/** GET /shop/:category — one handler per product category, all built from the same factory. Also PATCH /shop/:productId/stock (admin only), the category tree, and related-items. */
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
 const shopService = require("../services/shopService");
+const categoryService = require("../services/categoryService");
 
 const getProductsByCategory = (category, label) =>
   asyncHandler(async (req, res) => {
@@ -19,6 +20,16 @@ const updateStock = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Stock updated", data: product });
 });
 
+const getCategoryTree = asyncHandler(async (req, res) => {
+  const tree = await categoryService.getTree();
+  res.status(200).json({ success: true, message: "Category tree retrieved", data: tree });
+});
+
+const getRelatedProducts = asyncHandler(async (req, res) => {
+  const products = await categoryService.getRelatedProducts(req.params.productId);
+  res.status(200).json({ success: true, message: "Related products retrieved", data: products });
+});
+
 module.exports = {
   getPowerProducts: getProductsByCategory("power", "Power"),
   getSleepProducts: getProductsByCategory("sleep", "Sleep"),
@@ -26,4 +37,6 @@ module.exports = {
   getRainProducts: getProductsByCategory("rain", "Rain protection"),
   getSecurityProducts: getProductsByCategory("security", "Security"),
   updateStock,
+  getCategoryTree,
+  getRelatedProducts,
 };

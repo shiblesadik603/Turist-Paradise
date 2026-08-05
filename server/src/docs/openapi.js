@@ -341,6 +341,33 @@ const openApiSpec = {
         },
       },
     },
+    "/shop/categories": {
+      get: {
+        tags: ["Shop"],
+        summary: "Get the shop category tree (adjacency-list, nested by DFS)",
+        security: bearerAuth,
+        responses: {
+          200: {
+            description:
+              "Nested [{ id, name, children: [...] }] — currently only 'bags' has subcategories",
+          },
+        },
+      },
+    },
+    "/shop/products/{productId}/related": {
+      get: {
+        tags: ["Shop"],
+        summary: "Related products — DFS across the product's category subtree",
+        description:
+          "For a product with a subcategory (bags), climbs to the parent and returns items from any subcategory in that subtree. For products without subcategory data, returns other items in the same collection.",
+        security: bearerAuth,
+        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Product array (max 6)" },
+          404: { description: "Not found" },
+        },
+      },
+    },
     "/cart/add": {
       post: {
         tags: ["Cart"],

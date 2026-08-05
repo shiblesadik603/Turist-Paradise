@@ -12,7 +12,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
 - **Weather forecast** — 5-hour and multi-day outlook plus travel-safety warnings for the selected destination, via OpenWeatherMap.
 - **AI itinerary planner** — generates a day-by-day travel plan (hotels, sights, ticket pricing, best time to visit) from Google's Gemini model, saved to your account. Generation runs server-side as a queued BullMQ background job rather than blocking the request — `POST /planner/generate` returns instantly with a job id, and the client polls until it's done.
-- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection; each category list is Redis-cached, invalidated the instant stock changes), add to cart, and check out via SSLCommerz (sandbox). Checkout is backed by a real order pipeline: a pending `Order` is created at checkout, verified server-side against SSLCommerz's validation API (never trusting the browser redirect alone), settled exactly once even if the success redirect and IPN webhook both fire, and only then does it atomically decrement product stock and clear the cart. Order history is visible on the profile page.
+- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection; each category list is Redis-cached, invalidated the instant stock changes), add to cart, and check out via SSLCommerz (sandbox). Categories are modeled as an adjacency-list tree (`bags` has 8 real subcategories — backpack, luggage, duffel bag, etc.); a DFS-based related-items endpoint climbs to a product's parent category and returns items from anywhere in that subtree. Checkout is backed by a real order pipeline: a pending `Order` is created at checkout, verified server-side against SSLCommerz's validation API (never trusting the browser redirect alone), settled exactly once even if the success redirect and IPN webhook both fire, and only then does it atomically decrement product stock and clear the cart. Order history is visible on the profile page.
 - **Travel blogs** — read and write blog posts about real trips, with reactions and comments on each post. Reactions and comments push live over WebSockets to everyone else currently viewing that post — no refresh needed.
 - **Profile management** — update name, phone, address, and profile photo.
 
@@ -93,6 +93,8 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 | DELETE | `/planner/:id` | JWT | – | – |
 | GET | `/shop/:category` | JWT | category = `power \| sleep \| bags \| rain \| security` | product array (each with a `stock` count) |
 | PATCH | `/shop/:productId/stock` | JWT (admin) | `{ stock }` | updated product |
+| GET | `/shop/categories` | JWT | – | nested category tree, e.g. `bags` with its 8 subcategories |
+| GET | `/shop/products/:productId/related` | JWT | – | up to 6 related products (DFS across the category subtree) |
 | POST | `/cart/add` | JWT | `{ userId, product }` | cart |
 | GET | `/cart/:userId` | JWT | – | `{ products, totalItems, totalPrice }` |
 | PUT | `/cart/update` | JWT | `{ userId, productId, quantity }` | cart |
@@ -147,7 +149,7 @@ Every response follows `{ success: boolean, message: string, data: object|array|
    ```
    npm run seed --prefix server
    ```
-   Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates, 4+ real products in every shop category (power, sleep, bags, rain, security), and 3 demo blog posts with comments. Safe to re-run — every seed upserts instead of creating duplicates, and re-running never overwrites real comments/reactions a logged-in user has added to the demo blogs. Run them independently with `npm run seed:spots --prefix server` / `npm run seed:shop --prefix server` / `npm run seed:blogs --prefix server`. See `server/src/seed/touristSpots.data.js`, `server/src/seed/shopProducts.data.js`, and `server/src/seed/blogs.data.js` to edit or extend any list.
+   Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates, 4+ real products in every shop category (power, sleep, bags, rain, security), the shop category tree, and 3 demo blog posts with comments. Safe to re-run — every seed upserts instead of creating duplicates, and re-running never overwrites real comments/reactions a logged-in user has added to the demo blogs. Run them independently with `npm run seed:spots --prefix server` / `npm run seed:shop --prefix server` / `npm run seed:blogs --prefix server` / `npm run seed:categories --prefix server`. See `server/src/seed/touristSpots.data.js`, `server/src/seed/shopProducts.data.js`, `server/src/seed/blogs.data.js`, and `server/src/seed/categories.data.js` to edit or extend any list.
 
    Every account signs up as a plain `customer` — there's deliberately no self-service way to become an `admin`. Bootstrap the first admin (needed for the delete-any-blog, all-orders, and stock-update endpoints) after signing up normally:
    ```
