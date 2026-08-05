@@ -30,6 +30,8 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 | Weather | OpenWeatherMap API |
 | AI | Google Gemini API |
 | Payments | SSLCommerz (sandbox) |
+| Security | Helmet, express-rate-limit |
+| API docs | Swagger UI (OpenAPI 3.0) at `/api/docs` |
 | Tooling | ESLint, Prettier |
 
 ---
@@ -67,7 +69,7 @@ client/src/
 
 ## 📡 API Reference
 
-Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callbacks require `Authorization: Bearer <token>`.
+Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callbacks require `Authorization: Bearer <token>`. Interactive Swagger docs (with a "Try it out" console) are served at `/api/docs` while the server is running.
 
 | Method | Path | Auth | Body | Response `data` |
 |---|---|---|---|---|
