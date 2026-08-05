@@ -23,6 +23,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ArticleIcon from "@mui/icons-material/Article";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useAuth } from "../hooks/useAuth";
 import * as usersApi from "../api/users.api";
 
@@ -59,7 +60,7 @@ const navButtonSx = {
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, userId, logout } = useAuth();
+  const { isAuthenticated, userId, isAdmin, logout } = useAuth();
   const isOnShopPage = location.pathname === "/shop";
 
   const [profile, setProfile] = useState(null);
@@ -194,6 +195,14 @@ export const Navbar = () => {
                 </ListItemIcon>
                 User Profile
               </MenuItem>
+              {isAdmin && (
+                <MenuItem component={Link} to="/admin" onClick={() => setProfileMenuAnchor(null)}>
+                  <ListItemIcon>
+                    <AdminPanelSettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  Admin Panel
+                </MenuItem>
+              )}
               <Divider />
               <MenuItem onClick={handleLogout}>
                 <ListItemIcon>

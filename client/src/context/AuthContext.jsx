@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import * as authApi from "../api/auth.api";
 import {
   getToken,
@@ -7,6 +7,7 @@ import {
   setSession,
   clearSession,
 } from "../utils/authStorage";
+import { decodeToken } from "../utils/jwt";
 
 export const AuthContext = createContext(null);
 
@@ -50,10 +51,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = Boolean(token && userId);
+  const role = useMemo(() => decodeToken(token)?.role ?? null, [token]);
+  const isAdmin = role === "admin";
 
   return (
     <AuthContext.Provider
-      value={{ userId, token, isAuthenticated, signup, login, loginWithGoogle, logout }}
+      value={{
+        userId,
+        token,
+        role,
+        isAdmin,
+        isAuthenticated,
+        signup,
+        login,
+        loginWithGoogle,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
