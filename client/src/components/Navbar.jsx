@@ -22,6 +22,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ArticleIcon from "@mui/icons-material/Article";
 import { useAuth } from "../hooks/useAuth";
 
 export const Navbar = () => {
@@ -187,6 +188,13 @@ export const Navbar = () => {
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Shop" sx={{ color: "#fff" }} />
+          </ListItem>
+
+          <ListItem button component={Link} to="/blogs" onClick={toggleSidebar}>
+            <ListItemIcon sx={{ color: "#fff" }}>
+              <ArticleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Blogs" sx={{ color: "#fff" }} />
           </ListItem>
         </List>
 

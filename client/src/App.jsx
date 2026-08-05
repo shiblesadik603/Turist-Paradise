@@ -18,6 +18,9 @@ import { Shop } from "./features/shop/Shop";
 import { Cart } from "./features/cart/Cart";
 import { PaymentSuccess } from "./features/cart/PaymentSuccess";
 import { PaymentFailed } from "./features/cart/PaymentFailed";
+import { Blogs } from "./features/blogs/Blogs";
+import { BlogDetail } from "./features/blogs/BlogDetail";
+import { WriteBlog } from "./features/blogs/WriteBlog";
 
 function App() {
   return (
@@ -40,6 +43,9 @@ function App() {
               element={<ProtectedRoute component={PaymentSuccess} />}
             />
             <Route path="/payment-failed" element={<ProtectedRoute component={PaymentFailed} />} />
+            <Route path="/blogs" element={<ProtectedRoute component={Blogs} />} />
+            <Route path="/blogs/new" element={<ProtectedRoute component={WriteBlog} />} />
+            <Route path="/blogs/:id" element={<ProtectedRoute component={BlogDetail} />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
           <Footer />
