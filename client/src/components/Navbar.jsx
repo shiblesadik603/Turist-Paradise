@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
   Box,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
+  Divider,
+  ListItemIcon,
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -18,197 +18,220 @@ import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkIcon from "@mui/icons-material/Work";
 import TripIcon from "@mui/icons-material/Flight";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useAuth } from "../hooks/useAuth";
+import * as usersApi from "../api/users.api";
+
+const NAV_LINKS = [
+  { to: "/home", label: "Home", icon: HomeIcon },
+  { to: "/travelplan", label: "Our Work", icon: WorkIcon },
+  { to: "/savedplan", label: "Your Trip", icon: TripIcon },
+  { to: "/shop", label: "Shop", icon: StorefrontIcon },
+  { to: "/blogs", label: "Blogs", icon: ArticleIcon },
+];
+
+const getInitials = (name) => {
+  if (!name) return "?";
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "");
+  return initials.join("") || "?";
+};
+
+const navButtonSx = {
+  color: "#fff",
+  borderColor: "#fff",
+  textTransform: "none",
+  padding: "6px 15px",
+  display: "flex",
+  alignItems: "center",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "#fff",
+  },
+};
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, userId, logout } = useAuth();
   const isOnShopPage = location.pathname === "/shop";
 
+  const [profile, setProfile] = useState(null);
+  const [navMenuAnchor, setNavMenuAnchor] = useState(null);
+  const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
+
+  useEffect(() => {
+    if (!userId) {
+      setProfile(null);
+      return;
+    }
+    usersApi
+      .getUser(userId)
+      .then((response) => setProfile(response.data.data))
+      .catch(() => setProfile(null));
+  }, [userId]);
+
   const handleLogout = () => {
+    setProfileMenuAnchor(null);
+    setNavMenuAnchor(null);
     logout();
-    setIsSidebarOpen(false);
     navigate("/login");
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const avatarSrc = profile?.image
+    ? `${import.meta.env.VITE_BACKEND_URL}/uploads/${profile.image}`
+    : null;
 
   return (
-    <>
-      <AppBar sx={{ background: "linear-gradient(90deg, #16202b 0%, #2c3e50 100%)" }}>
-        <Toolbar>
-          {isAuthenticated && (
-            <MenuIcon
-              sx={{ cursor: "pointer", marginRight: "10px", color: "#fff" }}
-              onClick={toggleSidebar}
-            />
-          )}
-          <Typography variant="h4" component="div" sx={{ flexGrow: 1, color: "#fff" }}>
-            Tourists
-          </Typography>
+    <AppBar sx={{ background: "linear-gradient(90deg, #16202b 0%, #2c3e50 100%)" }}>
+      <Toolbar sx={{ gap: "6px" }}>
+        {isAuthenticated && (
+          <IconButton
+            sx={{ display: { xs: "inline-flex", md: "none" }, color: "#fff" }}
+            onClick={(e) => setNavMenuAnchor(e.currentTarget)}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
 
-          {isAuthenticated && isOnShopPage && (
-            <Button
-              variant="outlined"
-              sx={{
-                color: "#fff",
-                borderColor: "#fff",
-                textTransform: "none",
-                padding: "6px 15px",
-                display: "flex",
-                alignItems: "center",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  borderColor: "#fff",
-                },
-              }}
-              component={Link}
-              to="/cart"
-            >
-              <ShoppingCartIcon sx={{ marginRight: "5px" }} />
-              My Cart
-            </Button>
-          )}
-
-          {!isAuthenticated ? (
-            <>
-              <Button
-                variant="outlined"
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                  marginRight: "10px",
-                  textTransform: "none",
-                  padding: "6px 15px",
-                  display: "flex",
-                  alignItems: "center",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    borderColor: "#fff",
-                  },
-                }}
-                component={Link}
-                to="/login"
-              >
-                <LoginIcon sx={{ marginRight: "5px" }} />
-                Login
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                  textTransform: "none",
-                  padding: "6px 15px",
-                  display: "flex",
-                  alignItems: "center",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    borderColor: "#fff",
-                  },
-                }}
-                component={Link}
-                to="/signup"
-              >
-                <PersonAddIcon sx={{ marginRight: "5px" }} />
-                Signup
-              </Button>
-            </>
-          ) : null}
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar */}
-      <Drawer
-        anchor="left"
-        open={isSidebarOpen}
-        onClose={toggleSidebar}
-        sx={{
-          width: 260,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: 260,
-            boxSizing: "border-box",
-            backgroundColor: "#2c3e50",
-            color: "#fff",
-          },
-        }}
-      >
-        <Toolbar />
-        <Box
+        <Typography
+          variant="h5"
+          component={Link}
+          to={isAuthenticated ? "/home" : "/login"}
           sx={{
-            padding: "20px",
-            textAlign: "center",
-            backgroundColor: "#34495e",
+            color: "#fff",
+            textDecoration: "none",
+            fontWeight: 800,
+            marginRight: "24px",
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Tourists
-          </Typography>
-        </Box>
-        <Divider sx={{ backgroundColor: "#34495e" }} />
+          Tourists
+        </Typography>
 
-        <List>
-          <ListItem button component={Link} to="/home" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem button component={Link} to="/userprofile" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText primary="User Profile" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem button component={Link} to="/travelplan" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <WorkIcon />
-            </ListItemIcon>
-            <ListItemText primary="Our Work" sx={{ color: "#fff" }} />
-          </ListItem>
-          <ListItem button component={Link} to="/savedplan" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <TripIcon />
-            </ListItemIcon>
-            <ListItemText primary="Your Trip" sx={{ color: "#fff" }} />
-          </ListItem>
+        {isAuthenticated && (
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: "2px" }}>
+            {NAV_LINKS.map((link) => {
+              const isActive = location.pathname === link.to;
+              return (
+                <Button
+                  key={link.to}
+                  component={Link}
+                  to={link.to}
+                  startIcon={<link.icon fontSize="small" />}
+                  sx={{
+                    color: isActive ? "#e2b13c" : "#fff",
+                    textTransform: "none",
+                    fontWeight: isActive ? 700 : 500,
+                    padding: "6px 14px",
+                    "&:hover": {
+                      color: "#e2b13c",
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    },
+                  }}
+                >
+                  {link.label}
+                </Button>
+              );
+            })}
+          </Box>
+        )}
 
-          <ListItem button component={Link} to="/shop" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Shop" sx={{ color: "#fff" }} />
-          </ListItem>
+        <Box sx={{ flexGrow: 1 }} />
 
-          <ListItem button component={Link} to="/blogs" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <ArticleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Blogs" sx={{ color: "#fff" }} />
-          </ListItem>
-        </List>
+        {isAuthenticated && isOnShopPage && (
+          <Button variant="outlined" sx={{ ...navButtonSx, marginRight: "10px" }} component={Link} to="/cart">
+            <ShoppingCartIcon sx={{ marginRight: "5px" }} />
+            My Cart
+          </Button>
+        )}
 
-        {/* Logout Button */}
-        <List sx={{ marginTop: "auto" }}>
-          <Divider sx={{ backgroundColor: "#34495e" }} />
-          <ListItem button onClick={handleLogout}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Logout" sx={{ color: "#fff" }} />
-          </ListItem>
-        </List>
-      </Drawer>
-    </>
+        {isAuthenticated ? (
+          <>
+            <IconButton onClick={(e) => setProfileMenuAnchor(e.currentTarget)} sx={{ padding: "4px" }}>
+              <Avatar
+                src={avatarSrc || undefined}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: "#e2b13c",
+                  color: "#16202b",
+                  fontWeight: 700,
+                  border: "2px solid rgba(255, 255, 255, 0.4)",
+                }}
+              >
+                {!avatarSrc && getInitials(profile?.name)}
+              </Avatar>
+            </IconButton>
+
+            <Menu
+              anchorEl={profileMenuAnchor}
+              open={Boolean(profileMenuAnchor)}
+              onClose={() => setProfileMenuAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <MenuItem
+                component={Link}
+                to="/userprofile"
+                onClick={() => setProfileMenuAnchor(null)}
+              >
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                User Profile
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
+                Logout
+              </MenuItem>
+            </Menu>
+
+            <Menu
+              anchorEl={navMenuAnchor}
+              open={Boolean(navMenuAnchor)}
+              onClose={() => setNavMenuAnchor(null)}
+              sx={{ display: { xs: "block", md: "none" } }}
+            >
+              {NAV_LINKS.map((link) => (
+                <MenuItem
+                  key={link.to}
+                  component={Link}
+                  to={link.to}
+                  onClick={() => setNavMenuAnchor(null)}
+                  selected={location.pathname === link.to}
+                >
+                  <ListItemIcon>
+                    <link.icon fontSize="small" />
+                  </ListItemIcon>
+                  {link.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        ) : (
+          <>
+            <Button variant="outlined" sx={{ ...navButtonSx, marginRight: "10px" }} component={Link} to="/login">
+              <LoginIcon sx={{ marginRight: "5px" }} />
+              Login
+            </Button>
+            <Button variant="outlined" sx={navButtonSx} component={Link} to="/signup">
+              <PersonAddIcon sx={{ marginRight: "5px" }} />
+              Signup
+            </Button>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 };
