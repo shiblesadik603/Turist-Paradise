@@ -28,6 +28,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SSLCOMMERZ_STORE_ID: ${SSLCOMMERZ_STORE_ID}
       SSLCOMMERZ_STORE_PASSWORD: ${SSLCOMMERZ_STORE_PASSWORD}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     volumes:
       - server-uploads:/app/uploads
     ports:
@@ -39,7 +41,7 @@ services:
       args:
         VITE_BACKEND_URL: http://localhost:3001
         VITE_OPENWEATHER_API_KEY: ${VITE_OPENWEATHER_API_KEY}
-        VITE_GEMINI_API_KEY: ${VITE_GEMINI_API_KEY}
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     restart: unless-stopped
     depends_on:
       - server

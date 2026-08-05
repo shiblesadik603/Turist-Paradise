@@ -232,9 +232,55 @@ const openApiSpec = {
     "/planner": {
       post: {
         tags: ["Planner"],
-        summary: "Save an AI-generated trip plan (rate-limited)",
+        summary: "Save a trip plan directly (rate-limited)",
         security: bearerAuth,
         responses: { 201: { description: "Saved plan" }, 429: { description: "Rate limited" } },
+      },
+    },
+    "/planner/generate": {
+      post: {
+        tags: ["Planner"],
+        summary: "Queue AI trip generation as a background job (rate-limited)",
+        description:
+          "Returns immediately with a jobId — the Gemini call runs in a BullMQ worker, not on this request. Poll GET /planner/jobs/:jobId for the result.",
+        security: bearerAuth,
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["location", "totalDays", "traveler", "budget"],
+                properties: {
+                  location: { type: "string" },
+                  totalDays: { type: "integer" },
+                  traveler: { type: "string" },
+                  budget: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          202: { description: "{ jobId }" },
+          429: { description: "Rate limited" },
+          503: { description: "AI trip planning not configured on this server" },
+        },
+      },
+    },
+    "/planner/jobs/{jobId}": {
+      get: {
+        tags: ["Planner"],
+        summary: "Poll a queued trip-generation job",
+        security: bearerAuth,
+        parameters: [{ name: "jobId", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: {
+            description:
+              "{ status: queued|processing|completed|failed, result, error } — result is the saved TripPlan once completed",
+          },
+          404: { description: "Job not found" },
+        },
       },
     },
     "/planner/{userId}": {

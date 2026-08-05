@@ -5,6 +5,7 @@ const { connectRedis } = require("./config/redis");
 const app = require("./app");
 const { initSocket } = require("./socket");
 const TouristSpotModel = require("./models/TouristSpot");
+require("./queues/tripPlanWorker"); // starts processing queued trip-generation jobs
 
 connectDB(env.mongoUri).catch((err) => console.error("Failed to connect to MongoDB", err));
 connectRedis();

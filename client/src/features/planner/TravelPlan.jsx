@@ -1,20 +1,48 @@
 import { useState } from "react";
 import { PlaceAutocomplete } from "./PlaceAutocomplete";
-import { AI_PROMPT, SelectBudgetOptions, SelectTravelsList } from "./options";
+import { SelectBudgetOptions, SelectTravelsList } from "./options";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { chatSession } from "../../api/gemini.api";
 import * as plannerApi from "../../api/planner.api";
-import { getUserId } from "../../utils/authStorage";
 import { TripPlanDetails } from "./TripPlanDetails";
 import "./TripPlans.css";
 import "./TravelPlan.css";
+
+const POLL_INTERVAL_MS = 2500;
+const MAX_POLL_ATTEMPTS = 40; // ~100s ceiling before giving up
+
+/** Polls GET /planner/jobs/:jobId until the queued generation job completes or fails. */
+const pollJob = (jobId) =>
+  new Promise((resolve, reject) => {
+    let attempts = 0;
+
+    const tick = async () => {
+      attempts += 1;
+      try {
+        const response = await plannerApi.getJobStatus(jobId);
+        const { status, result, error } = response.data.data;
+
+        if (status === "completed") {
+          resolve(result);
+        } else if (status === "failed") {
+          reject(new Error(error || "Trip generation failed"));
+        } else if (attempts >= MAX_POLL_ATTEMPTS) {
+          reject(new Error("Trip generation is taking too long. Please try again."));
+        } else {
+          setTimeout(tick, POLL_INTERVAL_MS);
+        }
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    tick();
+  });
 
 export const TravelPlan = () => {
   const [formData, setFormData] = useState({});
   const [generating, setGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
-  const userId = getUserId();
 
   const handleInputChange = (name, value) => {
     setFormData({
@@ -33,44 +61,24 @@ export const TravelPlan = () => {
       toast.warning("Consider shorter trips for better suggestions!");
     }
 
-    const FINAL_PROMPT = AI_PROMPT.replace("{location}", formData?.location?.label)
-      .replace("{totalDays}", formData?.noOfDays)
-      .replace("{traveler}", formData?.traveler)
-      .replace("{budget}", formData?.budget);
+    const travelerOption = SelectTravelsList.find((item) => item.people === formData.traveler);
+    const travelerLabel = travelerOption ? travelerOption.title : String(formData.traveler);
 
     setGenerating(true);
 
     try {
-      const result = await chatSession.sendMessage(FINAL_PROMPT);
-      const responseText = await result?.response?.text();
-
-      const travelPlanData = JSON.parse(responseText);
-
-      const formattedItinerary = Object.keys(travelPlanData.itinerary).map((dayKey) => {
-        const dayPlan = travelPlanData.itinerary[dayKey];
-        return {
-          day: parseInt(dayKey.replace("day", ""), 10),
-          theme: dayPlan.theme,
-          plan: dayPlan.plan,
-        };
+      const response = await plannerApi.generateTripPlan({
+        location: formData.location.label,
+        totalDays: formData.noOfDays,
+        traveler: travelerLabel,
+        budget: formData.budget,
       });
 
-      const travelerOption = SelectTravelsList.find((item) => item.people === formData.traveler);
-
-      travelPlanData.userId = userId;
-      travelPlanData.location = formData.location.label;
-      travelPlanData.duration = `${formData.noOfDays} Days`;
-      travelPlanData.travelers = travelerOption ? travelerOption.title : String(formData.traveler);
-      travelPlanData.budget = formData.budget;
-      travelPlanData.itinerary = formattedItinerary;
-
-      const response = await plannerApi.createTripPlan(travelPlanData);
-      if (response.status === 201) {
-        setGeneratedPlan(response.data.data);
-        toast.success("Travel plan generated and saved!");
-      }
+      const plan = await pollJob(response.data.data.jobId);
+      setGeneratedPlan(plan);
+      toast.success("Travel plan generated and saved!");
     } catch (error) {
-      console.error("Error saving travel plan:", error);
+      console.error("Error generating travel plan:", error);
       toast.error("Failed to generate travel plan. Please try again.");
     } finally {
       setGenerating(false);

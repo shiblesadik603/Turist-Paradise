@@ -23,7 +23,10 @@ module.exports = {
   sslcommerzStorePassword: process.env.SSLCOMMERZ_STORE_PASSWORD || "qwerty",
   // Optional — Google sign-in is disabled (returns a clear error) until this is set.
   googleClientId: process.env.GOOGLE_CLIENT_ID || null,
-  // Optional — caching and the background job queue degrade gracefully (skip the cache,
-  // run jobs inline) if Redis isn't reachable, so there's a sane local default.
+  // Optional — caching degrades gracefully (skips itself) if Redis isn't reachable, so
+  // there's a sane local default. The trip-plan job queue genuinely needs Redis, though —
+  // that's the point of it being a queue.
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
+  // Optional — trip generation returns a clear 503 until this is set.
+  geminiApiKey: process.env.GEMINI_API_KEY || null,
 };
