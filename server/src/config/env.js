@@ -23,4 +23,7 @@ module.exports = {
   sslcommerzStorePassword: process.env.SSLCOMMERZ_STORE_PASSWORD || "qwerty",
   // Optional — Google sign-in is disabled (returns a clear error) until this is set.
   googleClientId: process.env.GOOGLE_CLIENT_ID || null,
+  // Optional — caching and the background job queue degrade gracefully (skip the cache,
+  // run jobs inline) if Redis isn't reachable, so there's a sane local default.
+  redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
 };

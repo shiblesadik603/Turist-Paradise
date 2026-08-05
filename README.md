@@ -7,12 +7,12 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 ## ✨ Features
 
 - **Authentication** — signup/login with bcrypt-hashed passwords, or "Continue with Google" (optional — only appears once configured). Sessions use a short-lived (15-minute) access JWT backed by a rotating, revocable refresh token — the client silently refreshes on a 401 and retries, so you never get logged out just because the access token expired. Accounts have a `customer`/`admin` role; admin-only endpoints gate a few write actions (delete any blog, list every order, update product stock).
-- **Destination explorer** — browse tourist spots pulled from MongoDB, each pinned on an OpenStreetMap/Leaflet map (free, no API key required).
+- **Destination explorer** — browse tourist spots pulled from MongoDB (Redis cache-aside, 5-minute TTL), each pinned on an OpenStreetMap/Leaflet map (free, no API key required).
 - **Destination detail pages** — a dedicated page per destination (`/destinations/:slug`) with an overview, highlights, nearby sub-attractions, ride/transport options, and local guide contacts (sample data, marked as placeholders).
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
 - **Weather forecast** — 5-hour and multi-day outlook plus travel-safety warnings for the selected destination, via OpenWeatherMap.
 - **AI itinerary planner** — generates a day-by-day travel plan (hotels, sights, ticket pricing, best time to visit) from Google's Gemini model, saved to your account.
-- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection), add to cart, and check out via SSLCommerz (sandbox). Checkout is backed by a real order pipeline: a pending `Order` is created at checkout, verified server-side against SSLCommerz's validation API (never trusting the browser redirect alone), settled exactly once even if the success redirect and IPN webhook both fire, and only then does it atomically decrement product stock and clear the cart. Order history is visible on the profile page.
+- **Travel gear shop** — browse products by category (power, sleep, security, bags, rain protection; each category list is Redis-cached, invalidated the instant stock changes), add to cart, and check out via SSLCommerz (sandbox). Checkout is backed by a real order pipeline: a pending `Order` is created at checkout, verified server-side against SSLCommerz's validation API (never trusting the browser redirect alone), settled exactly once even if the success redirect and IPN webhook both fire, and only then does it atomically decrement product stock and clear the cart. Order history is visible on the profile page.
 - **Travel blogs** — read and write blog posts about real trips, with reactions and comments on each post. Reactions and comments push live over WebSockets to everyone else currently viewing that post — no refresh needed.
 - **Profile management** — update name, phone, address, and profile photo.
 
@@ -25,6 +25,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 | Frontend | React 18, Vite, React Router, MUI |
 | Backend | Node.js, Express |
 | Database | MongoDB (Mongoose) |
+| Caching | Redis (cache-aside, optional — degrades to direct DB reads if unreachable) |
 | Auth | JWT (access/refresh rotation) + bcrypt, Google OAuth 2.0 |
 | Real-time | Socket.io (live blog reactions/comments) |
 | Maps | Leaflet + OpenStreetMap tiles (display), OSRM (driving directions), Overpass API (nearby places), Nominatim (destination search) — all free, no API key |
@@ -115,6 +116,7 @@ Every response follows `{ success: boolean, message: string, data: object|array|
 
 - Node.js (LTS) and npm
 - A MongoDB connection (e.g. a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster)
+- Redis (optional — `brew install redis && brew services start redis` locally, or point `REDIS_URL` at a hosted instance). Without it, caching just skips itself; nothing breaks.
 - API keys: [OpenWeatherMap](https://openweathermap.org/api), [Google Gemini](https://ai.google.dev/) — no Maps API key needed; the map, nearby-places search, directions, and destination autocomplete all run on free OpenStreetMap-based services (Leaflet, Overpass, OSRM, Nominatim) with no signup or billing required.
 
 > **A note on the free map stack:** OSRM's and Overpass's public demo servers are rate-limited and meant for light/demo usage, not production traffic. Directions and nearby-place search may occasionally return a temporary error under heavy use — this is expected for the free tier, not a bug. For a production deployment, consider self-hosting OSRM/Overpass or using a paid provider.

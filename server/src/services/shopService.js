@@ -5,6 +5,7 @@ const BagProduct = require("../models/BagProduct");
 const RainProduct = require("../models/RainProduct");
 const SecurityProduct = require("../models/SecurityProduct");
 const ApiError = require("../utils/ApiError");
+const cacheService = require("./cacheService");
 
 const modelsByCategory = {
   power: PowerProduct,
@@ -14,14 +15,25 @@ const modelsByCategory = {
   security: SecurityProduct,
 };
 
-const getProductsByCategory = (category) => modelsByCategory[category].find();
+const CACHE_TTL_SECONDS = 300; // 5 min
+
+const cacheKey = (category) => `shop:${category}`;
+
+const getProductsByCategory = async (category) => {
+  const cached = await cacheService.get(cacheKey(category));
+  if (cached) return cached;
+
+  const products = await modelsByCategory[category].find();
+  await cacheService.set(cacheKey(category), products, CACHE_TTL_SECONDS);
+  return products;
+};
 
 /** Finds a product by its catalog id, searching every category (cart items don't carry a category). */
 const findProductById = async (productId) => {
-  for (const Model of Object.values(modelsByCategory)) {
+  for (const [category, Model] of Object.entries(modelsByCategory)) {
     const product = await Model.findOne({ id: productId });
     if (product) {
-      return { Model, product };
+      return { Model, product, category };
     }
   }
   return null;
@@ -40,7 +52,16 @@ const updateProductStock = async (productId, stock) => {
 
   found.product.stock = stock;
   await found.product.save();
+  await invalidateCategoryCache(found.category);
   return found.product;
 };
 
-module.exports = { modelsByCategory, getProductsByCategory, findProductById, updateProductStock };
+const invalidateCategoryCache = (category) => cacheService.del(cacheKey(category));
+
+module.exports = {
+  modelsByCategory,
+  getProductsByCategory,
+  findProductById,
+  updateProductStock,
+  invalidateCategoryCache,
+};

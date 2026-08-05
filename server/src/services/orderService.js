@@ -50,6 +50,8 @@ const decrementStock = async (items) => {
       console.warn(
         `Order settlement: insufficient stock for ${item.productId}, order still marked paid`
       );
+    } else {
+      await shopService.invalidateCategoryCache(found.category);
     }
   }
 };
