@@ -145,7 +145,12 @@ export const Navbar = () => {
         <Box sx={{ flexGrow: 1 }} />
 
         {isAuthenticated && isOnShopPage && (
-          <Button variant="outlined" sx={{ ...navButtonSx, marginRight: "10px" }} component={Link} to="/cart">
+          <Button
+            variant="outlined"
+            sx={{ ...navButtonSx, marginRight: "10px" }}
+            component={Link}
+            to="/cart"
+          >
             <ShoppingCartIcon sx={{ marginRight: "5px" }} />
             My Cart
           </Button>
@@ -153,7 +158,10 @@ export const Navbar = () => {
 
         {isAuthenticated ? (
           <>
-            <IconButton onClick={(e) => setProfileMenuAnchor(e.currentTarget)} sx={{ padding: "4px" }}>
+            <IconButton
+              onClick={(e) => setProfileMenuAnchor(e.currentTarget)}
+              sx={{ padding: "4px" }}
+            >
               <Avatar
                 src={avatarSrc || undefined}
                 sx={{
@@ -219,7 +227,12 @@ export const Navbar = () => {
           </>
         ) : (
           <>
-            <Button variant="outlined" sx={{ ...navButtonSx, marginRight: "10px" }} component={Link} to="/login">
+            <Button
+              variant="outlined"
+              sx={{ ...navButtonSx, marginRight: "10px" }}
+              component={Link}
+              to="/login"
+            >
               <LoginIcon sx={{ marginRight: "5px" }} />
               Login
             </Button>

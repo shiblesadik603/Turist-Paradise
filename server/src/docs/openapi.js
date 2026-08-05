@@ -341,7 +341,10 @@ const openApiSpec = {
         summary: "Get one blog post with its comments",
         security: bearerAuth,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { 200: { description: "Blog with comments" }, 404: { description: "Not found" } },
+        responses: {
+          200: { description: "Blog with comments" },
+          404: { description: "Not found" },
+        },
       },
       delete: {
         tags: ["Blogs"],
@@ -370,7 +373,11 @@ const openApiSpec = {
           required: true,
           content: {
             "application/json": {
-              schema: { type: "object", required: ["text"], properties: { text: { type: "string" } } },
+              schema: {
+                type: "object",
+                required: ["text"],
+                properties: { text: { type: "string" } },
+              },
             },
           },
         },
