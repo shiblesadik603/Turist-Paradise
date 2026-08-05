@@ -21,4 +21,6 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET,
   sslcommerzStoreId: process.env.SSLCOMMERZ_STORE_ID || "testbox",
   sslcommerzStorePassword: process.env.SSLCOMMERZ_STORE_PASSWORD || "qwerty",
+  // Optional — Google sign-in is disabled (returns a clear error) until this is set.
+  googleClientId: process.env.GOOGLE_CLIENT_ID || null,
 };

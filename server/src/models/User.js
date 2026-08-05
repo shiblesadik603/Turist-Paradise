@@ -10,11 +10,13 @@ const UserSchema = new mongoose.Schema({
   },
   name: String,
   email: { type: String, unique: true },
-  password: String,
+  // null for accounts created via Google sign-in — they authenticate with Google, not a password.
+  password: { type: String, default: null },
   phonenum: { type: String, default: null },
   address: { type: String, default: null },
   image: { type: String, default: null },
   role: { type: String, enum: ["customer", "admin"], default: "customer" },
+  authProvider: { type: String, enum: ["local", "google"], default: "local" },
 });
 
 const UserModel = mongoose.model("users", UserSchema);

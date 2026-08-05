@@ -1,4 +1,4 @@
-/** POST /auth/signup, POST /auth/login, POST /auth/refresh, POST /auth/logout. */
+/** POST /auth/signup, POST /auth/login, POST /auth/google, POST /auth/refresh, POST /auth/logout. */
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
 const authService = require("../services/authService");
@@ -52,6 +52,20 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+const googleLogin = asyncHandler(async (req, res) => {
+  const { idToken, rememberMe } = req.body;
+
+  const { user, accessToken, refreshToken } = await authService.loginWithGoogle({
+    idToken,
+    rememberMe: Boolean(rememberMe),
+  });
+  res.status(200).json({
+    success: true,
+    message: "Login successful",
+    data: { user, accessToken, refreshToken },
+  });
+});
+
 const refresh = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
   const tokens = await authService.refresh(refreshToken);
@@ -63,4 +77,4 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Logged out", data: null });
 });
 
-module.exports = { signup, login, refresh, logout };
+module.exports = { signup, login, googleLogin, refresh, logout };

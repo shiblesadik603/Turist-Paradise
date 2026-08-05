@@ -6,7 +6,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 
 ## ✨ Features
 
-- **Authentication** — signup/login with bcrypt-hashed passwords. Sessions use a short-lived (15-minute) access JWT backed by a rotating, revocable refresh token — the client silently refreshes on a 401 and retries, so you never get logged out just because the access token expired. Accounts have a `customer`/`admin` role; admin-only endpoints gate a few write actions (delete any blog, list every order, update product stock).
+- **Authentication** — signup/login with bcrypt-hashed passwords, or "Continue with Google" (optional — only appears once configured). Sessions use a short-lived (15-minute) access JWT backed by a rotating, revocable refresh token — the client silently refreshes on a 401 and retries, so you never get logged out just because the access token expired. Accounts have a `customer`/`admin` role; admin-only endpoints gate a few write actions (delete any blog, list every order, update product stock).
 - **Destination explorer** — browse tourist spots pulled from MongoDB, each pinned on an OpenStreetMap/Leaflet map (free, no API key required).
 - **Destination detail pages** — a dedicated page per destination (`/destinations/:slug`) with an overview, highlights, nearby sub-attractions, ride/transport options, and local guide contacts (sample data, marked as placeholders).
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
@@ -75,6 +75,7 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 |---|---|---|---|---|
 | POST | `/auth/signup` | – | `{ name, email, password }` | `{ user, accessToken, refreshToken }` |
 | POST | `/auth/login` | – | `{ email, password, rememberMe? }` | `{ user, accessToken, refreshToken }` — access token expires in 15 min; refresh token lasts 30 days if remembered, else 1 day |
+| POST | `/auth/google` | – | `{ idToken, rememberMe? }` | `{ user, accessToken, refreshToken }` — verifies the Google ID token server-side; creates the account on first sign-in |
 | POST | `/auth/refresh` | – | `{ refreshToken }` | `{ accessToken, refreshToken }` — rotates the refresh token; the old one stops working immediately |
 | POST | `/auth/logout` | – | `{ refreshToken }` | – (revokes that refresh token) |
 | GET | `/users/:userId` | JWT | – | user object |
@@ -116,6 +117,8 @@ Every response follows `{ success: boolean, message: string, data: object|array|
 - API keys: [OpenWeatherMap](https://openweathermap.org/api), [Google Gemini](https://ai.google.dev/) — no Maps API key needed; the map, nearby-places search, directions, and destination autocomplete all run on free OpenStreetMap-based services (Leaflet, Overpass, OSRM, Nominatim) with no signup or billing required.
 
 > **A note on the free map stack:** OSRM's and Overpass's public demo servers are rate-limited and meant for light/demo usage, not production traffic. Directions and nearby-place search may occasionally return a temporary error under heavy use — this is expected for the free tier, not a bug. For a production deployment, consider self-hosting OSRM/Overpass or using a paid provider.
+
+> **Google sign-in is optional.** To enable it: in [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an OAuth 2.0 Client ID (type "Web application"), add `http://localhost:5173` under "Authorized JavaScript origins", then put that same Client ID in both `server/.env`'s `GOOGLE_CLIENT_ID` and `client/.env`'s `VITE_GOOGLE_CLIENT_ID`. Without it, the "Continue with Google" button simply doesn't render — everything else works normally.
 
 ### Setup
 

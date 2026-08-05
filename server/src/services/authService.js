@@ -1,11 +1,14 @@
-/** Signup/login/refresh/logout: hashes/verifies passwords with bcrypt, issues short-lived access JWTs backed by rotating opaque refresh tokens. */
+/** Signup/login/refresh/logout: hashes/verifies passwords with bcrypt, issues short-lived access JWTs backed by rotating opaque refresh tokens. Also handles Google sign-in. */
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const UserModel = require("../models/User");
 const RefreshToken = require("../models/RefreshToken");
 const ApiError = require("../utils/ApiError");
 const env = require("../config/env");
+
+const googleClient = env.googleClientId ? new OAuth2Client(env.googleClientId) : null;
 
 const SALT_ROUNDS = 10;
 const ACCESS_TOKEN_EXPIRY = "15m";
@@ -66,9 +69,50 @@ const login = async ({ email, password, rememberMe }) => {
     throw new ApiError(404, "No account found with this email");
   }
 
+  if (!user.password) {
+    throw new ApiError(401, "This account uses Google sign-in — continue with Google instead");
+  }
+
   const passwordMatches = await bcrypt.compare(password, user.password);
   if (!passwordMatches) {
     throw new ApiError(401, "Incorrect password");
+  }
+
+  const { accessToken, refreshToken } = await issueSession(user, Boolean(rememberMe));
+
+  return { user: stripPassword(user), accessToken, refreshToken };
+};
+
+/** Verifies a Google ID token server-side (never trust a client-asserted email), then finds or creates the matching account. */
+const loginWithGoogle = async ({ idToken, rememberMe }) => {
+  if (!googleClient) {
+    throw new ApiError(503, "Google sign-in isn't configured on this server");
+  }
+  if (!idToken) {
+    throw new ApiError(400, "idToken is required");
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken, audience: env.googleClientId });
+    payload = ticket.getPayload();
+  } catch {
+    throw new ApiError(401, "Invalid Google token");
+  }
+
+  if (!payload?.email_verified) {
+    throw new ApiError(401, "Google account email is not verified");
+  }
+
+  let user = await UserModel.findOne({ email: payload.email });
+  if (!user) {
+    // `image` is left unset (not payload.picture) — the rest of the app treats it as an
+    // /uploads filename, not an arbitrary external URL, so mixing the two would break rendering.
+    user = await UserModel.create({
+      name: payload.name || payload.email,
+      email: payload.email,
+      authProvider: "google",
+    });
   }
 
   const { accessToken, refreshToken } = await issueSession(user, Boolean(rememberMe));
@@ -107,4 +151,4 @@ const logout = async (rawToken) => {
   await RefreshToken.deleteOne({ tokenHash: hashToken(rawToken) });
 };
 
-module.exports = { signup, login, refresh, logout };
+module.exports = { signup, login, loginWithGoogle, refresh, logout };

@@ -32,6 +32,12 @@ export const AuthProvider = ({ children }) => {
     persistSession(user, accessToken, refreshToken, rememberMe);
   };
 
+  const loginWithGoogle = async (idToken, rememberMe) => {
+    const response = await authApi.loginWithGoogle(idToken, rememberMe);
+    const { user, accessToken, refreshToken } = response.data.data;
+    persistSession(user, accessToken, refreshToken, rememberMe);
+  };
+
   const logout = () => {
     // Best-effort server-side revocation — the client-side session clears regardless.
     const refreshToken = getRefreshToken();
@@ -46,7 +52,9 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = Boolean(token && userId);
 
   return (
-    <AuthContext.Provider value={{ userId, token, isAuthenticated, signup, login, logout }}>
+    <AuthContext.Provider
+      value={{ userId, token, isAuthenticated, signup, login, loginWithGoogle, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

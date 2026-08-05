@@ -96,6 +96,35 @@ const openApiSpec = {
         },
       },
     },
+    "/auth/google": {
+      post: {
+        tags: ["Auth"],
+        summary: "Sign in with a Google ID token (verified server-side)",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["idToken"],
+                properties: {
+                  idToken: { type: "string" },
+                  rememberMe: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description:
+              "{ user, accessToken, refreshToken } — creates the account on first sign-in",
+          },
+          401: { description: "Invalid Google token" },
+          503: { description: "Google sign-in not configured on this server" },
+        },
+      },
+    },
     "/auth/refresh": {
       post: {
         tags: ["Auth"],

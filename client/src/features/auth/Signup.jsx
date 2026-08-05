@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { TextField, Button, Typography, Alert } from "@mui/material";
+import { TextField, Button, Typography, Alert, Divider } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useAuth } from "../../hooks/useAuth";
 import { AuthLayout } from "./AuthLayout";
 import { PasswordField } from "./PasswordField";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import { isValidEmail, getPasswordRules } from "../../utils/validators";
 
 export const SignUp = () => {
@@ -117,6 +118,13 @@ export const SignUp = () => {
           {submitting ? "Creating account…" : "Sign up"}
         </Button>
       </form>
+
+      {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+        <>
+          <Divider sx={{ my: 2 }}>or</Divider>
+          <GoogleSignInButton onError={setError} />
+        </>
+      )}
     </AuthLayout>
   );
 };

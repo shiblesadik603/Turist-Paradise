@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { TextField, Button, Typography, Alert, Checkbox, FormControlLabel } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Checkbox,
+  FormControlLabel,
+  Divider,
+} from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import { useAuth } from "../../hooks/useAuth";
 import { AuthLayout } from "./AuthLayout";
 import { PasswordField } from "./PasswordField";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import { isValidEmail } from "../../utils/validators";
 
 export const Login = () => {
@@ -122,6 +131,13 @@ export const Login = () => {
           {submitting ? "Logging in…" : "Log in"}
         </Button>
       </form>
+
+      {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+        <>
+          <Divider sx={{ my: 2 }}>or</Divider>
+          <GoogleSignInButton rememberMe={rememberMe} onError={setError} />
+        </>
+      )}
     </AuthLayout>
   );
 };
