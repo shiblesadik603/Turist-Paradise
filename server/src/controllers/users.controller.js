@@ -10,7 +10,9 @@ const getUser = asyncHandler(async (req, res) => {
 
 const updateUser = asyncHandler(async (req, res) => {
   const { name, phonenum, address } = req.body;
-  const image = req.file ? req.file.filename : null;
+  // Omitted (not null) when no new file was uploaded, so an unrelated profile edit
+  // (e.g. just changing the phone number) doesn't wipe out the existing avatar.
+  const image = req.file ? req.file.path : undefined;
 
   const updatedUser = await userService.updateUser(req.params.userId, {
     name,

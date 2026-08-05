@@ -1,14 +1,29 @@
-/** Multer config: saves uploads to server/uploads with a timestamp-prefixed filename. */
+/** Multer config for avatar uploads: streams straight to Cloudinary so files survive redeploys on hosts with an ephemeral filesystem. */
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const { cloudinary, isCloudinaryConfigured } = require("../config/cloudinary");
+const ApiError = require("../utils/ApiError");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "..", "..", "uploads"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
+const storage = isCloudinaryConfigured
+  ? new CloudinaryStorage({
+      cloudinary,
+      params: { folder: "tourism-app/avatars" },
+    })
+  : multer.memoryStorage();
 
-module.exports = multer({ storage });
+const upload = multer({ storage });
+
+/** Rejects avatar uploads with a clear error instead of a confusing failure when Cloudinary isn't configured. */
+const requireCloudinary = (req, res, next) => {
+  if (req.file && !isCloudinaryConfigured) {
+    return next(
+      new ApiError(
+        503,
+        "Avatar uploads are unavailable — CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET are not set."
+      )
+    );
+  }
+  next();
+};
+
+module.exports = Object.assign(upload, { requireCloudinary });

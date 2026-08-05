@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as usersApi from "../../api/users.api";
 import { clearSession, getUserId } from "../../utils/authStorage";
+import { resolveAvatarUrl } from "../../utils/avatar";
 import { SavedTrips } from "../planner/SavedTrips";
 import { OrderHistory } from "../orders/OrderHistory";
 import "./Userprofile.css";
@@ -108,7 +109,7 @@ export const Userprofile = () => {
     if (editableData.image && editableData.image instanceof File) {
       return URL.createObjectURL(editableData.image);
     } else if (userData?.image) {
-      return `${import.meta.env.VITE_BACKEND_URL}/uploads/${userData.image}`;
+      return resolveAvatarUrl(userData.image);
     }
     return null;
   };

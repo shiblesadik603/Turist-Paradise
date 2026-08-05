@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: tourism-platform-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      # Render sets PORT automatically — server/src/config/env.js reads it, nothing to set here.
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: SSLCOMMERZ_STORE_ID
+        sync: false
+      - key: SSLCOMMERZ_STORE_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

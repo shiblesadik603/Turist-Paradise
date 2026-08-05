@@ -29,4 +29,11 @@ module.exports = {
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
   // Optional — trip generation returns a clear 503 until this is set.
   geminiApiKey: process.env.GEMINI_API_KEY || null,
+  // Optional — avatar uploads return a clear error until all three are set. Needed because
+  // most free hosts (e.g. Render's free tier) have an ephemeral filesystem: anything written
+  // to local disk is wiped on every redeploy/restart, so profile pictures need to live
+  // somewhere persistent instead.
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || null,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || null,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || null,
 };

@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.get("/", requireAuth, requireRole("admin"), getAllUsers);
 router.get("/:userId", requireAuth, getUser);
-router.put("/:userId", requireAuth, upload.single("image"), updateUser);
+router.put("/:userId", requireAuth, upload.single("image"), upload.requireCloudinary, updateUser);
 router.patch("/:userId/role", requireAuth, requireRole("admin"), updateUserRole);
 router.delete("/:userId", requireAuth, requireRole("admin"), deleteUser);
 

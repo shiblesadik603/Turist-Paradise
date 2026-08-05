@@ -10,6 +10,11 @@ node_modules/
 dist/
 dist-ssr/
 build/
+.vite/
+
+# Local avatar uploads (production uploads go to Cloudinary instead — see server/.env.example)
+server/uploads/*
+!server/uploads/.gitkeep
 
 # OS files
 .DS_Store

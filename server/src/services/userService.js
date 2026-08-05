@@ -13,11 +13,12 @@ const getUserById = async (userId) => {
 };
 
 const updateUser = async (userId, { name, phonenum, address, image }) => {
-  const updatedUser = await UserModel.findByIdAndUpdate(
-    userId,
-    { name, phonenum, address, image },
-    { new: true }
-  );
+  // image is only included when a new avatar was actually uploaded — otherwise
+  // this would overwrite the existing avatar with undefined on every profile edit.
+  const fields = { name, phonenum, address };
+  if (image !== undefined) fields.image = image;
+
+  const updatedUser = await UserModel.findByIdAndUpdate(userId, fields, { new: true });
   if (!updatedUser) {
     throw new ApiError(404, "User not found");
   }

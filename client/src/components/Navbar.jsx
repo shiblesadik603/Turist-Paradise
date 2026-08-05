@@ -26,6 +26,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useAuth } from "../hooks/useAuth";
 import * as usersApi from "../api/users.api";
+import { resolveAvatarUrl } from "../utils/avatar";
 
 const NAV_LINKS = [
   { to: "/home", label: "Home", icon: HomeIcon },
@@ -85,9 +86,7 @@ export const Navbar = () => {
     navigate("/login");
   };
 
-  const avatarSrc = profile?.image
-    ? `${import.meta.env.VITE_BACKEND_URL}/uploads/${profile.image}`
-    : null;
+  const avatarSrc = resolveAvatarUrl(profile?.image);
 
   return (
     <AppBar sx={{ background: "linear-gradient(90deg, #16202b 0%, #2c3e50 100%)" }}>

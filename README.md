@@ -189,6 +189,14 @@ The client is served at `http://localhost:8080`, the API at `http://localhost:30
 
 ---
 
+## ☁️ Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for a step-by-step guide to deploying this app for
+free — Vercel (frontend), Render (backend), MongoDB Atlas, Upstash (Redis), and Cloudinary
+(avatar uploads), including a `render.yaml` Blueprint for one-click backend setup.
+
+---
+
 ## 📸 Screenshots
 
 ![App Screenshot](client/assets/111.png)
