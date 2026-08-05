@@ -12,7 +12,7 @@ import {
   Divider,
   Box,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
@@ -26,8 +26,10 @@ import { useAuth } from "../hooks/useAuth";
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated, logout } = useAuth();
+  const isOnShopPage = location.pathname === "/shop";
 
   const handleLogout = () => {
     logout();
@@ -52,6 +54,29 @@ export const Navbar = () => {
           <Typography variant="h4" component="div" sx={{ flexGrow: 1, color: "#fff" }}>
             Tourists
           </Typography>
+
+          {isAuthenticated && isOnShopPage && (
+            <Button
+              variant="outlined"
+              sx={{
+                color: "#fff",
+                borderColor: "#fff",
+                textTransform: "none",
+                padding: "6px 15px",
+                display: "flex",
+                alignItems: "center",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  borderColor: "#fff",
+                },
+              }}
+              component={Link}
+              to="/cart"
+            >
+              <ShoppingCartIcon sx={{ marginRight: "5px" }} />
+              My Cart
+            </Button>
+          )}
 
           {!isAuthenticated ? (
             <>
@@ -162,13 +187,6 @@ export const Navbar = () => {
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Shop" sx={{ color: "#fff" }} />
-          </ListItem>
-
-          <ListItem button component={Link} to="/cart" onClick={toggleSidebar}>
-            <ListItemIcon sx={{ color: "#fff" }}>
-              <ShoppingCartIcon />
-            </ListItemIcon>
-            <ListItemText primary="My Cart" sx={{ color: "#fff" }} />
           </ListItem>
         </List>
 
