@@ -227,7 +227,7 @@
 .modal-content {
   background: white;
   border-radius: 20px;
-  padding: 40px;
+  padding: 0;
   max-width: 800px;
   width: 100%;
   max-height: 85vh;
@@ -241,29 +241,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e2e8f0;
+  padding: 28px 40px;
+  background: linear-gradient(135deg, #2c3e50, #16202b);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .modal-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #fff;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
 .modal-title svg {
-  color: #2c3e50;
-  width: 28px;
-  height: 28px;
+  color: #e2b13c;
+  width: 26px;
+  height: 26px;
 }
 
 .close-button {
-  background: #e2e8f0 !important;
-  color: #4a5568 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
   width: 40px !important;
   height: 40px !important;
   border-radius: 50% !important;
@@ -271,36 +273,64 @@
 }
 
 .close-button:hover {
-  background: #cbd5e0 !important;
+  background: rgba(255, 255, 255, 0.25) !important;
   transform: scale(1.1) !important;
 }
 
-/* Modal Content */
-.modal-details {
-  display: grid;
-  gap: 20px;
-  margin-bottom: 30px;
+/* Modal Body */
+.modal-body {
+  padding: 30px 40px 40px;
 }
 
-.modal-detail {
+/* Stats */
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 34px;
+}
+
+.modal-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 20px 12px;
+  background: #f7fafc;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.modal-stat__icon {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 15px 20px;
-  background: #f7fafc;
-  border-radius: 12px;
-  border-left: 4px solid #2c3e50;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2c3e50, #16202b);
+  margin-bottom: 4px;
 }
 
-.modal-detail svg {
-  color: #2c3e50;
+.modal-stat__icon svg {
+  color: #e2b13c;
   width: 20px;
   height: 20px;
 }
 
-.modal-detail strong {
+.modal-stat__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #a0aec0;
+}
+
+.modal-stat__value {
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #2d3748;
-  font-weight: 600;
 }
 
 /* Hotels and Itinerary */
@@ -326,58 +356,138 @@
   height: 20px;
 }
 
-.hotel-list,
-.itinerary-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.hotel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
 }
 
-.hotel-item,
-.itinerary-item {
+.hotel-card {
   background: #f7fafc;
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
+  padding: 18px;
   border-left: 4px solid #2c3e50;
   transition: all 0.3s ease;
 }
 
-.hotel-item:hover,
-.itinerary-item:hover {
+.hotel-card:hover {
   background: #edf2f7;
-  transform: translateX(5px);
+  transform: translateY(-3px);
 }
 
-.day-item {
-  margin-bottom: 20px;
+.hotel-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.day-header {
+.hotel-card__header h5 {
+  margin: 0;
+  font-size: 1rem;
   font-weight: 700;
   color: #2d3748;
-  margin-bottom: 10px;
-  font-size: 1.1rem;
 }
 
-.place-list {
-  list-style: none;
-  padding-left: 20px;
+.hotel-card__price {
+  flex-shrink: 0;
+  background: #e2b13c;
+  color: #16202b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hotel-card__address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
+  color: #718096;
+  font-size: 0.9rem;
 }
 
-.place-item {
+.hotel-card__address svg {
+  color: #c9932e;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Itinerary Timeline */
+.itinerary-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.itinerary-day {
+  background: #f7fafc;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.itinerary-day__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.itinerary-day__badge {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #2c3e50, #16202b);
+  color: #e2b13c;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.itinerary-day__header h5 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.itinerary-day__places {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.itinerary-day__places li {
   background: white;
   border-radius: 8px;
   padding: 12px 15px;
-  margin-bottom: 8px;
-  border-left: 3px solid #e2e8f0;
+  border-left: 3px solid #e2b13c;
   transition: all 0.3s ease;
 }
 
-.place-item:hover {
-  border-left-color: #e2b13c;
-  background: #f8fafc;
+.itinerary-day__places li:hover {
+  background: #fffaf0;
+  transform: translateX(4px);
+}
+
+.itinerary-day__places strong {
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.itinerary-day__places p {
+  margin: 4px 0 0;
+  color: #718096;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 /* Responsive Design */
@@ -437,14 +547,25 @@
   }
 
   .modal-content {
-    padding: 25px;
     margin: 0;
     max-height: 80vh;
     margin-top: 0;
   }
 
+  .modal-header {
+    padding: 22px 25px;
+  }
+
+  .modal-body {
+    padding: 25px;
+  }
+
   .modal-title {
     font-size: 1.5rem;
+  }
+
+  .modal-stats {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -463,8 +584,19 @@
   }
 
   .modal-content {
-    padding: 20px;
     max-height: 75vh;
+  }
+
+  .modal-header {
+    padding: 18px 20px;
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .modal-stats {
+    grid-template-columns: 1fr;
   }
 }
 
