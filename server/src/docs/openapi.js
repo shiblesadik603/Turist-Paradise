@@ -62,7 +62,7 @@ const openApiSpec = {
           },
         },
         responses: {
-          201: { description: "Account created" },
+          201: { description: "{ user, accessToken, refreshToken } — 15-minute access token" },
           400: { description: "Validation error" },
         },
       },
@@ -70,7 +70,7 @@ const openApiSpec = {
     "/auth/login": {
       post: {
         tags: ["Auth"],
-        summary: "Log in and receive a JWT",
+        summary: "Log in and receive an access/refresh token pair",
         requestBody: {
           required: true,
           content: {
@@ -81,15 +81,61 @@ const openApiSpec = {
                 properties: {
                   email: { type: "string", format: "email" },
                   password: { type: "string" },
+                  rememberMe: { type: "boolean" },
                 },
               },
             },
           },
         },
         responses: {
-          200: { description: "{ user, token }" },
+          200: {
+            description:
+              "{ user, accessToken, refreshToken } — accessToken expires in 15 minutes, refreshToken lasts 30 days if rememberMe else 1 day",
+          },
           401: { description: "Invalid credentials" },
         },
+      },
+    },
+    "/auth/refresh": {
+      post: {
+        tags: ["Auth"],
+        summary:
+          "Exchange a refresh token for a new access/refresh pair (rotates the refresh token)",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["refreshToken"],
+                properties: { refreshToken: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "{ accessToken, refreshToken }" },
+          401: { description: "Refresh token invalid, expired, or already used" },
+        },
+      },
+    },
+    "/auth/logout": {
+      post: {
+        tags: ["Auth"],
+        summary: "Revoke a refresh token",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["refreshToken"],
+                properties: { refreshToken: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: "Logged out" } },
       },
     },
     "/users/{userId}": {
@@ -196,6 +242,30 @@ const openApiSpec = {
         responses: { 200: { description: "Product array, each with a stock count" } },
       },
     },
+    "/shop/{productId}/stock": {
+      patch: {
+        tags: ["Shop"],
+        summary: "Set a product's stock (admin only)",
+        security: bearerAuth,
+        parameters: [{ name: "productId", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["stock"],
+                properties: { stock: { type: "integer", minimum: 0 } },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Updated product" },
+          403: { description: "Not an admin" },
+        },
+      },
+    },
     "/cart/add": {
       post: {
         tags: ["Cart"],
@@ -293,6 +363,14 @@ const openApiSpec = {
         summary: "SSLCommerz server-to-server webhook — the authoritative settlement path",
         description: "Idempotent: settling an already-paid/failed/cancelled order is a no-op.",
         responses: { 200: { description: "IPN received" } },
+      },
+    },
+    "/orders": {
+      get: {
+        tags: ["Orders"],
+        summary: "List every order across every user (admin only)",
+        security: bearerAuth,
+        responses: { 200: { description: "Order array" }, 403: { description: "Not an admin" } },
       },
     },
     "/orders/{userId}": {

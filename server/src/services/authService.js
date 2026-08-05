@@ -1,15 +1,45 @@
-/** Signup/login: hashes/verifies passwords with bcrypt and issues JWTs. */
+/** Signup/login/refresh/logout: hashes/verifies passwords with bcrypt, issues short-lived access JWTs backed by rotating opaque refresh tokens. */
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/User");
+const RefreshToken = require("../models/RefreshToken");
 const ApiError = require("../utils/ApiError");
 const env = require("../config/env");
 
 const SALT_ROUNDS = 10;
-const DEFAULT_TOKEN_EXPIRY = "1d";
-const REMEMBER_ME_TOKEN_EXPIRY = "30d";
+const ACCESS_TOKEN_EXPIRY = "15m";
+const REFRESH_TOKEN_TTL = {
+  default: 24 * 60 * 60 * 1000, // 1 day
+  remember: 30 * 24 * 60 * 60 * 1000, // 30 days
+};
 
-const signToken = (userId, expiresIn) => jwt.sign({ userId }, env.jwtSecret, { expiresIn });
+const signAccessToken = (userId, role) =>
+  jwt.sign({ userId, role }, env.jwtSecret, { expiresIn: ACCESS_TOKEN_EXPIRY });
+
+const hashToken = (rawToken) => crypto.createHash("sha256").update(rawToken).digest("hex");
+
+const issueRefreshToken = async (userId, remember) => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const ttl = remember ? REFRESH_TOKEN_TTL.remember : REFRESH_TOKEN_TTL.default;
+
+  await RefreshToken.create({
+    userId,
+    tokenHash: hashToken(rawToken),
+    remember,
+    expiresAt: new Date(Date.now() + ttl),
+  });
+
+  return rawToken;
+};
+
+const issueSession = async (user, remember) => {
+  const [accessToken, refreshToken] = await Promise.all([
+    signAccessToken(user._id, user.role),
+    issueRefreshToken(user._id, remember),
+  ]);
+  return { accessToken, refreshToken };
+};
 
 const stripPassword = (userDoc) => {
   const { password: _password, ...rest } = userDoc.toObject();
@@ -23,12 +53,11 @@ const signup = async ({ name, email, password }) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  // role is never accepted from the client — every signup is a plain customer account.
   const user = await UserModel.create({ name, email, password: hashedPassword });
+  const { accessToken, refreshToken } = await issueSession(user, false);
 
-  return {
-    user: stripPassword(user),
-    token: signToken(user._id, DEFAULT_TOKEN_EXPIRY),
-  };
+  return { user: stripPassword(user), accessToken, refreshToken };
 };
 
 const login = async ({ email, password, rememberMe }) => {
@@ -42,12 +71,40 @@ const login = async ({ email, password, rememberMe }) => {
     throw new ApiError(401, "Incorrect password");
   }
 
-  const expiresIn = rememberMe ? REMEMBER_ME_TOKEN_EXPIRY : DEFAULT_TOKEN_EXPIRY;
+  const { accessToken, refreshToken } = await issueSession(user, Boolean(rememberMe));
 
-  return {
-    user: stripPassword(user),
-    token: signToken(user._id, expiresIn),
-  };
+  return { user: stripPassword(user), accessToken, refreshToken };
 };
 
-module.exports = { signup, login };
+/** Rotates a refresh token: the old one is invalidated the moment a new pair is issued, so a stolen-and-replayed token stops working as soon as the legitimate client refreshes. */
+const refresh = async (rawToken) => {
+  if (!rawToken) {
+    throw new ApiError(401, "Refresh token required");
+  }
+
+  const stored = await RefreshToken.findOne({ tokenHash: hashToken(rawToken) });
+  if (!stored || stored.expiresAt < new Date()) {
+    throw new ApiError(401, "Refresh token invalid or expired");
+  }
+
+  const user = await UserModel.findById(stored.userId);
+  if (!user) {
+    await RefreshToken.deleteOne({ _id: stored._id });
+    throw new ApiError(401, "Account no longer exists");
+  }
+
+  await RefreshToken.deleteOne({ _id: stored._id });
+  const [accessToken, refreshToken] = await Promise.all([
+    signAccessToken(user._id, user.role),
+    issueRefreshToken(user._id, stored.remember),
+  ]);
+
+  return { accessToken, refreshToken };
+};
+
+const logout = async (rawToken) => {
+  if (!rawToken) return;
+  await RefreshToken.deleteOne({ tokenHash: hashToken(rawToken) });
+};
+
+module.exports = { signup, login, refresh, logout };

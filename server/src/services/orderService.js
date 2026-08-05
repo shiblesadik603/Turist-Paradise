@@ -108,10 +108,14 @@ const markCancelled = (tranId) =>
 
 const getOrdersByUser = (userId) => Order.find({ userId }).sort("-createdAt");
 
+/** Admin-only: every order across every user. */
+const getAllOrders = () => Order.find({}).sort("-createdAt");
+
 module.exports = {
   createPendingOrder,
   verifyAndSettle,
   markFailed,
   markCancelled,
   getOrdersByUser,
+  getAllOrders,
 };

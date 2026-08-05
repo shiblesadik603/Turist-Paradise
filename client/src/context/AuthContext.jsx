@@ -1,17 +1,23 @@
 import { createContext, useState } from "react";
 import * as authApi from "../api/auth.api";
-import { getToken, getUserId, setSession, clearSession } from "../utils/authStorage";
+import {
+  getToken,
+  getRefreshToken,
+  getUserId,
+  setSession,
+  clearSession,
+} from "../utils/authStorage";
 
 export const AuthContext = createContext(null);
 
-/** Holds the signed-in user's id/JWT (localStorage if "remembered", else sessionStorage) and the signup/login/logout actions. */
+/** Holds the signed-in user's id/access-token (localStorage if "remembered", else sessionStorage) and the signup/login/logout actions. */
 export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(getUserId());
   const [token, setToken] = useState(getToken());
 
-  const persistSession = (user, jwt, remember) => {
-    setSession(jwt, user._id, remember);
-    setToken(jwt);
+  const persistSession = (user, accessToken, refreshToken, remember) => {
+    setSession(accessToken, refreshToken, user._id, remember);
+    setToken(accessToken);
     setUserId(user._id);
   };
 
@@ -22,11 +28,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, rememberMe) => {
     const response = await authApi.login(email, password, rememberMe);
-    const { user, token: jwt } = response.data.data;
-    persistSession(user, jwt, rememberMe);
+    const { user, accessToken, refreshToken } = response.data.data;
+    persistSession(user, accessToken, refreshToken, rememberMe);
   };
 
   const logout = () => {
+    // Best-effort server-side revocation — the client-side session clears regardless.
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      authApi.logout(refreshToken).catch(() => {});
+    }
     clearSession();
     setToken(null);
     setUserId(null);

@@ -34,9 +34,9 @@ const addComment = async (blogId, { authorId, authorName, text }) => {
   return blog;
 };
 
-const deleteBlog = async (blogId, userId) => {
+const deleteBlog = async (blogId, userId, role) => {
   const blog = await getBlogById(blogId);
-  if (blog.authorId !== userId) {
+  if (blog.authorId !== userId && role !== "admin") {
     throw new ApiError(403, "You can only delete your own blog");
   }
   await BlogModel.findByIdAndDelete(blogId);

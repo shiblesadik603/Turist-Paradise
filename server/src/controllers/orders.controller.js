@@ -7,4 +7,9 @@ const getOrders = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Orders retrieved", data: orders });
 });
 
-module.exports = { getOrders };
+const getAllOrders = asyncHandler(async (req, res) => {
+  const orders = await orderService.getAllOrders();
+  res.status(200).json({ success: true, message: "All orders retrieved", data: orders });
+});
+
+module.exports = { getOrders, getAllOrders };

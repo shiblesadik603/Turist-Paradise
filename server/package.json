@@ -10,6 +10,7 @@
     "seed:spots": "node src/seed/touristSpots.js",
     "seed:shop": "node src/seed/shopProducts.js",
     "seed:blogs": "node src/seed/blogs.js",
+    "promote:admin": "node src/seed/promoteAdmin.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

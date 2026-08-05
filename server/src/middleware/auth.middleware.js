@@ -1,4 +1,4 @@
-/** Verifies the Bearer JWT and sets req.userId, or rejects with 401. */
+/** Verifies the Bearer JWT and sets req.userId/req.userRole, or rejects with 401. */
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
@@ -14,6 +14,7 @@ const requireAuth = (req, res, next) => {
   try {
     const payload = jwt.verify(token, env.jwtSecret);
     req.userId = payload.userId;
+    req.userRole = payload.role || "customer";
     next();
   } catch {
     next(new ApiError(401, "Invalid or expired token"));

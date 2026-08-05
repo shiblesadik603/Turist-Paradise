@@ -5,3 +5,5 @@ export const signup = (name, email, password) =>
 
 export const login = (email, password, rememberMe) =>
   axiosClient.post("/auth/login", { email, password, rememberMe });
+
+export const logout = (refreshToken) => axiosClient.post("/auth/logout", { refreshToken });

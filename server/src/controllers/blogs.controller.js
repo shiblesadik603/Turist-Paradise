@@ -44,7 +44,7 @@ const addComment = asyncHandler(async (req, res) => {
 });
 
 const deleteBlog = asyncHandler(async (req, res) => {
-  await blogService.deleteBlog(req.params.id, req.userId);
+  await blogService.deleteBlog(req.params.id, req.userId, req.userRole);
   res.status(200).json({ success: true, message: "Blog deleted", data: null });
 });
 

@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
   phonenum: { type: String, default: null },
   address: { type: String, default: null },
   image: { type: String, default: null },
+  role: { type: String, enum: ["customer", "admin"], default: "customer" },
 });
 
 const UserModel = mongoose.model("users", UserSchema);

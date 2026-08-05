@@ -1,4 +1,4 @@
-/** POST /auth/signup, POST /auth/login — validate input, delegate to authService. */
+/** POST /auth/signup, POST /auth/login, POST /auth/refresh, POST /auth/logout. */
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
 const authService = require("../services/authService");
@@ -18,11 +18,15 @@ const signup = asyncHandler(async (req, res) => {
     throw new ApiError(400, passwordError);
   }
 
-  const { user, token } = await authService.signup({ name: name.trim(), email, password });
+  const { user, accessToken, refreshToken } = await authService.signup({
+    name: name.trim(),
+    email,
+    password,
+  });
   res.status(201).json({
     success: true,
     message: "Account created successfully",
-    data: { user, token },
+    data: { user, accessToken, refreshToken },
   });
 });
 
@@ -36,7 +40,7 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Password is required");
   }
 
-  const { user, token } = await authService.login({
+  const { user, accessToken, refreshToken } = await authService.login({
     email,
     password,
     rememberMe: Boolean(rememberMe),
@@ -44,8 +48,19 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Login successful",
-    data: { user, token },
+    data: { user, accessToken, refreshToken },
   });
 });
 
-module.exports = { signup, login };
+const refresh = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+  const tokens = await authService.refresh(refreshToken);
+  res.status(200).json({ success: true, message: "Token refreshed", data: tokens });
+});
+
+const logout = asyncHandler(async (req, res) => {
+  await authService.logout(req.body.refreshToken);
+  res.status(200).json({ success: true, message: "Logged out", data: null });
+});
+
+module.exports = { signup, login, refresh, logout };

@@ -6,7 +6,7 @@ A full-stack MERN travel planning app: browse destinations on an interactive map
 
 ## ✨ Features
 
-- **Authentication** — signup/login with bcrypt-hashed passwords and JWT session tokens.
+- **Authentication** — signup/login with bcrypt-hashed passwords. Sessions use a short-lived (15-minute) access JWT backed by a rotating, revocable refresh token — the client silently refreshes on a 401 and retries, so you never get logged out just because the access token expired. Accounts have a `customer`/`admin` role; admin-only endpoints gate a few write actions (delete any blog, list every order, update product stock).
 - **Destination explorer** — browse tourist spots pulled from MongoDB, each pinned on an OpenStreetMap/Leaflet map (free, no API key required).
 - **Destination detail pages** — a dedicated page per destination (`/destinations/:slug`) with an overview, highlights, nearby sub-attractions, ride/transport options, and local guide contacts (sample data, marked as placeholders).
 - **Nearby places & directions** — find hotels/restaurants/resorts near a destination and get turn-by-turn directions from your current location, with automatic fallback suggestions (ferry, flight, land route) when no road route exists.
@@ -73,8 +73,10 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 
 | Method | Path | Auth | Body | Response `data` |
 |---|---|---|---|---|
-| POST | `/auth/signup` | – | `{ name, email, password }` | `{ user, token }` |
-| POST | `/auth/login` | – | `{ email, password }` | `{ user, token }` |
+| POST | `/auth/signup` | – | `{ name, email, password }` | `{ user, accessToken, refreshToken }` |
+| POST | `/auth/login` | – | `{ email, password, rememberMe? }` | `{ user, accessToken, refreshToken }` — access token expires in 15 min; refresh token lasts 30 days if remembered, else 1 day |
+| POST | `/auth/refresh` | – | `{ refreshToken }` | `{ accessToken, refreshToken }` — rotates the refresh token; the old one stops working immediately |
+| POST | `/auth/logout` | – | `{ refreshToken }` | – (revokes that refresh token) |
 | GET | `/users/:userId` | JWT | – | user object |
 | PUT | `/users/:userId` | JWT | `multipart/form-data`: `name, phonenum, address, image?` | updated user |
 | GET | `/destinations` | JWT | – | tourist spot array |
@@ -84,6 +86,7 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 | GET | `/planner/:userId` | JWT | – | plan array |
 | DELETE | `/planner/:id` | JWT | – | – |
 | GET | `/shop/:category` | JWT | category = `power \| sleep \| bags \| rain \| security` | product array (each with a `stock` count) |
+| PATCH | `/shop/:productId/stock` | JWT (admin) | `{ stock }` | updated product |
 | POST | `/cart/add` | JWT | `{ userId, product }` | cart |
 | GET | `/cart/:userId` | JWT | – | `{ products, totalItems, totalPrice }` |
 | PUT | `/cart/update` | JWT | `{ userId, productId, quantity }` | cart |
@@ -91,13 +94,14 @@ Base URL: `/api/v1`. All routes except `auth/*` and the payment gateway callback
 | DELETE | `/cart/clear/:userId` | JWT | – | – |
 | POST | `/payment/init` | JWT | `{ totalAmount, userId, cartItems }` | `{ url }` — SSLCommerz gateway URL; also creates a `pending` Order |
 | POST | `/payment/success`, `/fail`, `/cancel`, `/ipn` | – (gateway callback) | – | verifies the transaction with SSLCommerz and settles the matching Order (idempotent); `success`/`fail`/`cancel` redirect the browser, `ipn` is the server-to-server webhook and just returns 200 |
+| GET | `/orders` | JWT (admin) | – | every order across every user, newest first |
 | GET | `/orders/:userId` | JWT | – | order array, newest first |
 | GET | `/blogs` | JWT | – | blog array, newest first |
 | GET | `/blogs/:id` | JWT | – | blog with comments |
 | POST | `/blogs` | JWT | `{ title, place, content, imageUrl? }` | created blog |
 | POST | `/blogs/:id/react` | JWT | – | blog with reaction toggled for the current user |
 | POST | `/blogs/:id/comments` | JWT | `{ text }` | blog with the new comment appended |
-| DELETE | `/blogs/:id` | JWT | – | – (only the blog's own author can delete it) |
+| DELETE | `/blogs/:id` | JWT (author or admin) | – | – |
 
 Every response follows `{ success: boolean, message: string, data: object|array|null }`; errors use the same shape with `success: false` and the relevant HTTP status code.
 
@@ -135,6 +139,11 @@ Every response follows `{ success: boolean, message: string, data: object|array|
    npm run seed --prefix server
    ```
    Populates 12 curated Bangladeshi destinations (Cox's Bazar, Sundarbans, Sajek Valley, and more) with real photos, descriptions, and coordinates, 4+ real products in every shop category (power, sleep, bags, rain, security), and 3 demo blog posts with comments. Safe to re-run — every seed upserts instead of creating duplicates, and re-running never overwrites real comments/reactions a logged-in user has added to the demo blogs. Run them independently with `npm run seed:spots --prefix server` / `npm run seed:shop --prefix server` / `npm run seed:blogs --prefix server`. See `server/src/seed/touristSpots.data.js`, `server/src/seed/shopProducts.data.js`, and `server/src/seed/blogs.data.js` to edit or extend any list.
+
+   Every account signs up as a plain `customer` — there's deliberately no self-service way to become an `admin`. Bootstrap the first admin (needed for the delete-any-blog, all-orders, and stock-update endpoints) after signing up normally:
+   ```
+   npm run promote:admin --prefix server -- you@example.com
+   ```
 
 4. **Run the backend**
    ```
