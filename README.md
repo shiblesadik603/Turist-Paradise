@@ -199,22 +199,28 @@ free — Vercel (frontend), Render (backend), MongoDB Atlas, Upstash (Redis), an
 
 ## 📸 Screenshots
 
-![App Screenshot](client/assets/111.png)
+**Home** — search, tour types, and featured destinations
+![Home](client/assets/screenshot-home.png)
 
-![App Screenshot](client/assets/11.png)
+**Destination detail** — overview, highlights, and trip-planning context per spot
+![Destination detail](client/assets/screenshot-destination-detail.png)
 
-![App Screenshot](client/assets/1.png)
+**Shop** — the travel gear marketplace, category-tabbed
+![Shop](client/assets/screenshot-shop.png)
 
-![App Screenshot](client/assets/2.png)
+**Blogs** — traveler stories with live reactions/comments
+![Blogs](client/assets/screenshot-blogs.png)
 
-![App Screenshot](client/assets/3.png)
+**Trip Plan** — the AI itinerary generator
+![Trip Plan](client/assets/screenshot-trip-planner.png)
 
-![App Screenshot](client/assets/4.png)
+**Profile** — account details, avatar upload, order history, saved trips
+![Profile](client/assets/screenshot-profile.png)
 
-![App Screenshot](client/assets/5.png)
+**Admin Dashboard** — live site-wide stats for admins
+![Admin Dashboard](client/assets/screenshot-admin-dashboard.png)
 
-![App Screenshot](client/assets/6.png)
-
-![App Screenshot](client/assets/7.png)
+**Admin Products** — category-tabbed CRUD across the shop catalog
+![Admin Products](client/assets/screenshot-admin-products.png)
 
 ![App Screenshot](client/assets/8.png)
