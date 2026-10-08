@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ServerWakeBanner } from "./components/ServerWakeBanner";
 
 import { Login } from "./features/auth/Login";
 import { SignUp } from "./features/auth/Signup";
@@ -33,6 +34,7 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Navbar />
+          <ServerWakeBanner />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />

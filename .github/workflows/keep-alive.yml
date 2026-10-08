@@ -1,0 +1,25 @@
+name: Keep backend awake
+
+# Render's free tier sleeps the API after ~15 idle minutes (first request then takes 30-60s).
+# Pinging /health every 5 minutes keeps it warm so visitors don't hit a cold start.
+#
+# Hours budget: Render's free plan allows 750 running hours/month across ALL free services in the
+# workspace. Running 24/7 (~744h) would starve the other service, so this only covers
+# 00:00-17:55 UTC (~18h/day, ~560h/month). Outside that window the client's wake-up banner
+# covers the cold start. Widen/narrow the hour range below to taste.
+#
+# Note: GitHub disables scheduled workflows after 60 days with no repo activity — any push
+# (or re-enabling it under the Actions tab) turns it back on.
+
+on:
+  schedule:
+    - cron: "*/5 0-17 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping /health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the API
+        run: curl -fsS --max-time 90 --retry 3 --retry-delay 15 https://tourism-platform-api.onrender.com/health

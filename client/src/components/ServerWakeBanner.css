@@ -1,0 +1,35 @@
+.server-wake-banner {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(640px, calc(100vw - 32px));
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #16202b;
+  color: #fff;
+  border: 1px solid #e2b13c;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.server-wake-banner__spinner {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(226, 177, 60, 0.3);
+  border-top-color: #e2b13c;
+  border-radius: 50%;
+  animation: server-wake-spin 0.9s linear infinite;
+}
+
+@keyframes server-wake-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
